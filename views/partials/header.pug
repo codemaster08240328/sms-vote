@@ -13,10 +13,9 @@
       ul.nav.navbar-nav
         li(class=(title == 'Home') ? 'active' : undefined)
           a(href='/') Home
-        li(class=(title == 'API Examples') ? 'active' : undefined)
-          a(href='/api') API Examples
-        li(class=(title == 'Contact') ? 'active' : undefined)
-          a(href='/contact') Contact
+        if !user
+            li(class=(title == 'Admin') ? 'active' : undefined)
+                a(href='/') Admin
       ul.nav.navbar-nav.navbar-right
         if !user
           li(class=(title == 'Login') ? 'active' : undefined)

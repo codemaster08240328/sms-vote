@@ -59,9 +59,14 @@
     "passport-facebook": "^2.1.1",
     "passport-local": "^1.0.0",
     "pug": "^2.0.0-beta6",
-    "request": "^2.78.0"
+    "request": "^2.78.0",
+    "chance": "^0.8.0",
+    "knockout": "^3.3.0",
+    "moment": "^2.10.6"
   },
   "devDependencies": {
+    "@types/foundation": "^5.5.28",
+    "@types/knockout": "^3.4.40",
     "@types/async": "^2.0.40",
     "@types/bcrypt-nodejs": "0.0.30",
     "@types/body-parser": "^1.16.2",
