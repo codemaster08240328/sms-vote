@@ -1,0 +1,20 @@
+[{
+  "Name": "Demo Voting",
+  "Choices": [{
+    "Id": 1,
+    "Name": "foo",
+    "Numbers": []
+  },
+  {
+    "Id": 2,
+    "Name": "bar",
+    "Numbers": []
+  },
+  {
+    "Id": 3,
+    "Name": "baz",
+    "Numbers": []
+  }],
+  "PhoneNumber": "change this later",
+  "Enabled": true
+}]

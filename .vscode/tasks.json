@@ -4,13 +4,8 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "Run Build",
-            "type": "npm",
-            "script": "build",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "type": "typescript",
+            "tsconfig": "server\\tsconfig.json"
         }
     ]
 }
