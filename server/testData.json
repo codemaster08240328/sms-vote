@@ -1,5 +1,6 @@
+//mongoimport --db test --collection votesources --type json --file testData.json --jsonArray
 [{
-  "Name": "Demo Voting",
+  "Name": "Test Voting",
   "Choices": [{
     "Id": 1,
     "Name": "foo",
@@ -15,6 +16,6 @@
     "Name": "baz",
     "Numbers": []
   }],
-  "PhoneNumber": "change this later",
+  "PhoneNumber": "16479526483",
   "Enabled": true
 }]
