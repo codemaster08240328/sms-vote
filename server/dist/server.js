@@ -18,6 +18,7 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const socketio = require("socket.io");
 const http = require("http");
+const twilio = require("twilio");
 const expressValidator = require("express-validator");
 const MongoStore = mongo(session);
 /**
@@ -124,7 +125,7 @@ app.post('/account/password', passportConfig.isAuthenticated, userController.pos
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.get('/admin', passportConfig.isAuthenticated, admninController.getAdmin);
-app.post('/vote/sms', voteController.voteSMS);
+app.post('/vote/sms', twilio.webhook(), voteController.voteSMS);
 /**
  * API examples routes.
  */

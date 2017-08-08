@@ -16,6 +16,7 @@ import * as mongoose from 'mongoose';
 import * as passport from 'passport';
 import * as socketio from 'socket.io';
 import * as http from 'http';
+import * as twilio from 'twilio';
 
 import expressValidator = require('express-validator');
 
@@ -138,7 +139,7 @@ app.post('/account/password', passportConfig.isAuthenticated, userController.pos
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.get('/admin', passportConfig.isAuthenticated, admninController.getAdmin);
-app.post('/vote/sms', voteController.voteSMS);
+app.post('/vote/sms', twilio.webhook(), voteController.voteSMS);
 
 /**
  * API examples routes.
