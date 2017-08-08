@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/sahat/hackathon-starter.git"
   },
+  "main": "./dist/server.js",
   "author": "Bowden Kelly",
   "license": "MIT",
   "scripts": {
