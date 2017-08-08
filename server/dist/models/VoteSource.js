@@ -7,7 +7,7 @@ const VoteSourceSchema = new mongoose.Schema({
     Choices: [{
             Id: String,
             Name: String,
-            Numbers: [{ type: String, unique: true }]
+            Numbers: [{ type: String }]
         }],
     PhoneNumber: String
 });

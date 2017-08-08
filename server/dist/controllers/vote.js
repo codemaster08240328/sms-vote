@@ -9,7 +9,10 @@ exports.voteSMS = (request, response) => {
     const to = request.param('To').slice(1);
     // the voter, use this to keep people from voting more than once
     const from = request.param('From');
-    VoteSource_1.default.findOne({ PhoneNumber: to, Enabled: true }, function (err, vote) {
+    VoteSource_1.default.find({ PhoneNumber: to })
+        .limit(1)
+        .exec((err, votes) => {
+        const vote = votes[0];
         if (err) {
             console.log(err);
             // silently fail for the user
@@ -42,6 +45,29 @@ exports.voteSMS = (request, response) => {
                     response.send('<Response><Sms>Thanks for your vote for ' + vote.Name + '. Powered by Twilio.</Sms></Response>');
                 }
             });
+        }
+    });
+};
+exports.createVote = (req, res, next) => {
+    res.header('Content-Type', 'text/xml');
+    const vote = new VoteSource_1.default({
+        Name: req.param('Name'),
+        Enabled: true,
+        PhoneNumber: '16479526483',
+        Choices: [
+            {
+                Name: 'Foo',
+                Id: '1'
+            },
+            {
+                Name: 'Bar',
+                Id: '2'
+            }
+        ]
+    });
+    vote.save((err, product, numAffected) => {
+        if (err) {
+            return next(err);
         }
     });
 };

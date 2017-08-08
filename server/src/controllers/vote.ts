@@ -4,7 +4,7 @@ import { default as VoteSource, VoteSourceModel } from '../models/VoteSource';
 import twilioConfig from '../config/twilio';
 import * as utils from '../utils';
 
-export let voteSMS = (request: Request, response: Response) => {
+export const voteSMS = (request: Request, response: Response) => {
     response.header('Content-Type', 'text/xml');
     const body = request.param('Body').trim();
 
@@ -14,7 +14,10 @@ export let voteSMS = (request: Request, response: Response) => {
     // the voter, use this to keep people from voting more than once
     const from = request.param('From');
 
-    VoteSource.findOne({ PhoneNumber: to, Enabled: true }, function(err, vote: VoteSourceModel) {
+    VoteSource.find( { PhoneNumber: to } )
+        .limit(1)
+        .exec((err, votes: VoteSourceModel[]) => {
+        const vote = votes[0];
         if (err) {
             console.log(err);
             // silently fail for the user
@@ -50,6 +53,30 @@ export let voteSMS = (request: Request, response: Response) => {
                     response.send('<Response><Sms>Thanks for your vote for ' + vote.Name + '. Powered by Twilio.</Sms></Response>');
                 }
             });
+        }
+    });
+};
+
+export const createVote = (req: Request, res: Response, next: NextFunction) => {
+    res.header('Content-Type', 'text/xml');
+    const vote = new VoteSource(<VoteSourceModel>{
+        Name: req.param('Name'),
+        Enabled: true,
+        PhoneNumber: '16479526483',
+        Choices: [
+            {
+                Name: 'Foo',
+                Id: '1'
+            },
+            {
+                Name: 'Bar',
+                Id: '2'
+            }
+        ]
+    });
+    vote.save((err: any, product: VoteSourceModel, numAffected: number) => {
+        if (err) {
+            return next(err);
         }
     });
 };
