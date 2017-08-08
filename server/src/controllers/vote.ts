@@ -9,12 +9,12 @@ export let voteSMS = (request: Request, response: Response) => {
     const body = request.param('Body').trim();
 
     // the number the vote it being sent to (this should match an Event)
-    const to = request.param('To');
+    const to = request.param('To').slice(1);
 
     // the voter, use this to keep people from voting more than once
     const from = request.param('From');
 
-    VoteSource.findOne({ PhoneNumber: to }, function(err, vote: VoteSourceModel) {
+    VoteSource.findOne({ PhoneNumber: to, Enabled: true }, function(err, vote: VoteSourceModel) {
         if (err) {
             console.log(err);
             // silently fail for the user
