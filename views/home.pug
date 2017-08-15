@@ -1,0 +1,46 @@
+extends layout
+
+block content
+  h1 Art Battle Administration
+  p.lead Internal control panel for sms voting system
+  hr
+  .row
+    if (!user)
+        .col-sm-6
+            h2 Manage votes
+            p Log in to create a voting session, or view and edit existing ones
+            p
+                a.btn.btn-default(href='/login', role='button') Log In »
+    else
+        #koroot.col-sm-12
+            h2 Manage votes
+            table.table.table-bordred.table-striped
+                thead
+                    th Name
+                    th PhoneNumber
+                    th Enabled
+                    th Edit
+                    th Delete
+                tbody
+                    // ko foreach: VoteSources
+                    tr
+                        td(data-bind='text: Name')
+                        td(data-bind='text: PhoneNumber')
+                        td
+                            input.checkthis(type='checkbox', data-bind='enable: false, checked: Enabled')
+                        td
+                            p(data-placement="top", data-toggle="tooltip", title="Edit")
+                                button.btn.btn-primary.btn-xs
+                                    i.glyphicon.glyphicon-pencil
+                        td
+                            p(data-placement="top", data-toggle="tooltip", title="Delete")
+                                button.btn.btn-danger.btn-xs
+                                    i.glyphicon.glyphicon-trash
+                    // /ko
+            
+block append scripts
+    if(user)
+        script(src='js/lib/jquery-3.2.1.js')
+        script(src='js/lib/knockout-3.4.2.js')
+        script(src='/js/home.js')
+    
