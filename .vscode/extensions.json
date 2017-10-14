@@ -1,6 +1,5 @@
 {
     "recommendations": [
-        "eg2.tslint",
-        "streetsidesoftware.code-spell-checker"
+        "eg2.tslint"
     ]
 }

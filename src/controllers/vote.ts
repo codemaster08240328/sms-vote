@@ -5,7 +5,7 @@ import VoteChoiceDTO from '../../shared/VoteChoiceDTO';
 import VoteSourceDTO from '../../shared/VoteSourceDTO';
 import twilioConfig from '../config/twilio';
 import * as utils from '../utils';
-import OperationResult from '../OperationResult';
+import { OperationResult, CreateOperationResult } from '../../shared/OperationResult';
 
 export const voteSMS = (request: Request, response: Response) => {
     response.header('Content-Type', 'text/xml');
@@ -60,19 +60,33 @@ export const voteSMS = (request: Request, response: Response) => {
     });
 };
 
-export const createVote = (req: Request, res: Response, next: NextFunction) => {
+export const saveVote = (req: Request, res: Response, next: NextFunction) => {
     const dto: VoteSourceDTO = req.body;
     const vote = new VoteSourceModel(dto);
     vote.save((err: any, product: VoteSourceDocument, numAffected: number) => {
         if (err) {
             return next(err);
         }
-    });
-    const result: OperationResult = {
-        Success: true
-    };
 
-    res.json(result);
+        const result: CreateOperationResult = {
+            Success: true,
+            Id: product._id
+        };
+
+        res.json(result);
+    });
+};
+
+export const deleteVote = (req: Request, res: Response, next: NextFunction) => {
+    VoteSourceModel.findByIdAndRemove(req.params.voteId, (err, res: VoteSourceDocument) => {
+        if (err) {
+            return next(err);
+        }
+
+        const result: OperationResult = {
+            Success: true
+        };
+    });
 };
 
 export const getVotes = (req: Request, res: Response, next: NextFunction) => {

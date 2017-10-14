@@ -1,7 +1,22 @@
 const gulp = require('gulp');
 const rollup = require('rollup');
 const resolve = require('rollup-plugin-node-resolve');
-const rollupTypescript = require('rollup-plugin-typescript2');
+const rollupTypescriptPlugin = require('rollup-plugin-typescript2');
+const tsc = require('gulp-typescript');
+const tslint = require('gulp-tslint');
+const merge = require('merge2');
+const naturalSort = require('gulp-natural-sort');
+
+gulp.task('compile-common', function () {
+    var tsProject = tsc.createProject('./client/src/Common/tsconfig.json');
+
+    var tsResult = tsProject.src() // instead of gulp.src(...)
+        .pipe(naturalSort())
+        .pipe(tsProject());
+
+    return merge([tsResult.js.pipe(gulp.dest('.'))]);
+});
+
 
 gulp.task('bundle-home', async function () {
     const homeBundle = await rollup.rollup({
@@ -16,7 +31,9 @@ gulp.task('bundle-home', async function () {
           },
         plugins: [
             resolve(),
-            rollupTypescript()
+            rollupTypescriptPlugin({
+                tsconfig: "client/tsconfig.json"
+            })
         ]
     });
 
@@ -32,5 +49,9 @@ gulp.task('bundle-home', async function () {
     });
 });
 
-gulp.task('build', ['bundle-home'], function() {
+gulp.task('compile', ['compile-common', 'bundle-home']);
+
+gulp.task('build', ['compile'], function() {
+    gulp.src('./client/dist/*')
+        .pipe(gulp.dest('./dist/public/js/'))
 });

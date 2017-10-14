@@ -52,7 +52,7 @@ const httpServer = http.createServer(app);
 const io = socketio(httpServer);
 
 io.on('connection', (socket: SocketIO.Socket) => {
-  console.log('a user connected');
+    console.log('a user connected');
 });
 
 /**
@@ -62,8 +62,8 @@ io.on('connection', (socket: SocketIO.Socket) => {
 mongoose.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI);
 
 mongoose.connection.on('error', () => {
-  console.log('MongoDB connection error. Please make sure MongoDB is running.');
-  process.exit();
+    console.log('MongoDB connection error. Please make sure MongoDB is running.');
+    process.exit();
 });
 
 
@@ -80,13 +80,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressValidator());
 app.use(session({
-  resave: true,
-  saveUninitialized: true,
-  secret: process.env.SESSION_SECRET,
-  store: new MongoStore({
-    url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
-    autoReconnect: true
-  })
+    resave: true,
+    saveUninitialized: true,
+    secret: process.env.SESSION_SECRET,
+    store: new MongoStore({
+        url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
+        autoReconnect: true
+    })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -94,27 +94,27 @@ app.use(flash());
 app.use(lusca.xframe('SAMEORIGIN'));
 app.use(lusca.xssProtection(true));
 app.use((req, res, next) => {
-  res.locals.user = req.user;
-  next();
+    res.locals.user = req.user;
+    next();
 });
 app.use((req, res, next) => {
-  // After successful login, redirect back to the intended page
-  if (!req.user &&
-      req.path !== '/login' &&
-      req.path !== '/signup' &&
-      !req.path.match(/^\/auth/) &&
-      !req.path.match(/\./)) {
-    req.session.returnTo = req.path;
-  } else if (req.user &&
-      req.path == '/account') {
-    req.session.returnTo = req.path;
-  }
-  next();
+    // After successful login, redirect back to the intended page
+    if (!req.user &&
+        req.path !== '/login' &&
+        req.path !== '/signup' &&
+        !req.path.match(/^\/auth/) &&
+        !req.path.match(/\./)) {
+        req.session.returnTo = req.path;
+    } else if (req.user &&
+        req.path == '/account') {
+        req.session.returnTo = req.path;
+    }
+    next();
 });
 app.use(express.static(path.join(__dirname, 'dist/public'), { maxAge: 31557600000 }));
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
+    console.log('a user connected');
 });
 
 /**
@@ -138,7 +138,8 @@ app.post('/account/password', passportConfig.isAuthenticated, userController.pos
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.get('/vote', passportConfig.isAuthenticated, voteController.getVotes);
-app.post('/vote/create', voteController.createVote);
+app.post('/vote/', voteController.saveVote);
+app.delete('/vote/:voteId', voteController.deleteVote);
 app.post('/vote/sms', voteController.voteSMS);
 
 
@@ -151,8 +152,8 @@ app.use(errorHandler());
  * Start Express server.
  */
 app.listen(app.get('port'), () => {
-  console.log(('  App is running at http://localhost:%d in %s mode'), app.get('port'), app.get('env'));
-  console.log('  Press CTRL-C to stop\n');
+    console.log(('  App is running at http://localhost:%d in %s mode'), app.get('port'), app.get('env'));
+    console.log('  Press CTRL-C to stop\n');
 });
 
 module.exports = app;

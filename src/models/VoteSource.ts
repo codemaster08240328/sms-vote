@@ -3,7 +3,9 @@ import * as mongoose from 'mongoose';
 import VoteChoiceDTO from '../../shared/VoteChoiceDTO';
 import VoteSourceDTO from '../../shared/VoteSourceDTO';
 
-export interface VoteSourceDocument extends VoteSourceDTO, mongoose.Document {}
+export interface VoteSourceDocument extends VoteSourceDTO, mongoose.Document {
+    hasVoted(phoneNumber: string): boolean;
+}
 
 const VoteSourceSchema: mongoose.Schema = new mongoose.Schema({
     Name: { type: String, unique: true },

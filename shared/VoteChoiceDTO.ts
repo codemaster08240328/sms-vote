@@ -1,5 +1,5 @@
 interface VoteChoiceDTO {
-    Id: string;
+    _id: any;
     Name: string;
     Numbers: string[];
 }

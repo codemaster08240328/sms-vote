@@ -5,6 +5,7 @@ const shell = require('shelljs');
 shell.cp('-R', 'public/js/lib', 'dist/public/js/');
 shell.cp('-R', 'public/fonts', 'dist/public/');
 shell.cp('-R', 'public/images', 'dist/public/');
+shell.cp('-R', 'public/css', 'dist/public/');
 // shell.cp('-R', '../client/build/static/*', 'dist/public/');
 
 // var css = clientAssets['main.css'].replace('static/css/', '');

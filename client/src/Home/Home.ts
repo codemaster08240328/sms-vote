@@ -1,3 +1,6 @@
+/// <reference path='../Common/ArrayExtensions.ts'/>
+/// <reference path='../Common/StringExtensions.ts'/>
+
 import * as ko from 'knockout';
 import HomeScreenViewModel from './HomeScreenViewModel';
 

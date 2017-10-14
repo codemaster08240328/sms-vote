@@ -1,0 +1,17 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "module": "es2015",
+        "moduleResolution": "node",
+        "importHelpers": true,
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "../node_modules/@types/*"
+            ]
+        }
+    },
+    "include": [
+        "./**/*"
+    ]
+}
