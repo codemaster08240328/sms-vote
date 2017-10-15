@@ -6,15 +6,24 @@ const tsc = require('gulp-typescript');
 const tslint = require('gulp-tslint');
 const merge = require('merge2');
 const naturalSort = require('gulp-natural-sort');
+const sourcemaps = require('gulp-sourcemaps');
+const typescript = require('typescript');
 
 gulp.task('compile-common', function () {
-    var tsProject = tsc.createProject('./client/src/Common/tsconfig.json');
+    var tsProject = tsc.createProject('./client/src/Common/tsconfig.json', { 
+        typescript: typescript,
+        outFile: './client/dist/common.js' 
+    });
 
     var tsResult = tsProject.src() // instead of gulp.src(...)
+        .pipe(sourcemaps.init())
         .pipe(naturalSort())
         .pipe(tsProject());
 
-    return merge([tsResult.js.pipe(gulp.dest('.'))]);
+    return merge([tsResult.js
+        .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
+        .pipe(gulp.dest('.'))
+    ]);
 });
 
 
@@ -49,9 +58,9 @@ gulp.task('bundle-home', async function () {
     });
 });
 
-gulp.task('compile', ['compile-common', 'bundle-home']);
+gulp.task('compile-client', ['compile-common', 'bundle-home']);
 
-gulp.task('build', ['compile'], function() {
+gulp.task('build-client', ['compile-client'], function() {
     gulp.src('./client/dist/*')
         .pipe(gulp.dest('./dist/public/js/'))
 });

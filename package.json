@@ -1,5 +1,5 @@
 {
-  "name": "express-typescript-starter",
+  "name": "sms-vote",
   "version": "0.1.0",
   "description": "SMS Voting",
   "repository": {
@@ -10,17 +10,31 @@
   "license": "MIT",
   "scripts": {
     "start": "npm run build && npm run watch",
-    "build": "npm run build-ts && npm run tslint && npm run copy-static-assets",
-    "serve": "nodemon dist/server.js",
-    "watch": "concurrently -k -p \"[{name}]\" -n \"TSServer,TSClient,Node\" -c \"cyan.bold,magenta.bold,green.bold\"\"npm run watch-ts\" \"npm run watch-ts-client\" \"npm run serve\"",
+    "build": "npm run tslint && npm run build-ts && npm run copy",
+    "serve": "nodemon --prefix dist server.js",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TSServer,TSClient,Node,Copy\" -c \"cyan.bold,magenta.bold,green.bold,gray\" \"npm run watch-ts-server\" \"npm run watch-ts-client\" \"npm run serve\" \"npm run watch-copy\"",
     "test": "jest --forceExit",
-    "build-ts": "tsc -p src/tsconfig.json && tsc -p client/tsconfig.json",
-    "watch-ts": "tsc -p src/tsconfig.json -w",
-    "watch-ts-client": "tsc -p client/tsconfig.json -w",
+    "build-ts": "npm run build-ts-server && npm run build-ts-client && npm run copy",
+    "build-ts-server": "tsc -p server/src/tsconfig.json && tsc -p client/tsconfig.json && npm run copy",
+    "build-ts-client": "gulp build-client",
+    "watch-ts-server": "tsc -p server/src/tsconfig.json -w && npm run copy",
+    "watch-ts-client": "echo \"ts watch not yet implemented for client side\"",
+    "watch-copy": "npm run npm-watch",
     "build-sass": "node-sass public/css/main.scss dist/public/css/main.css",
     "watch-sass": "node-sass -w public/css/main.scss dist/public/css/main.css",
-    "tslint": "tslint -c tslint.json -p src/tsconfig.json",
-    "copy-static-assets": "node copyStaticAssets.js"
+    "tslint": "tslint -c tslint.json -p server/src/tsconfig.json",
+    "copy": "node copyBuildFiles.js"
+  },
+  "watch": {
+    "copy": {
+      "patterns": [
+        "server/dist",
+        "server/public",
+        "server/views"
+      ],
+      "extensions": "js,js.map,pug,css,eot,svg,ttf,woff,woff2,otf,webp,jpg,png,gif,env",
+      "delay": 5000
+    }
   },
   "jest": {
     "globals": {
@@ -94,12 +108,14 @@
     "estree-walker": "^0.5.0",
     "gulp": "^3.9.1",
     "gulp-natural-sort": "^0.1.1",
+    "gulp-sourcemaps": "^2.6.1",
     "gulp-tslint": "^8.1.2",
-    "gulp-typescript": "^3.2.1",
+    "gulp-typescript": "^3.2.2",
     "jest": "^19.0.2",
     "merge2": "^1.1.0",
     "node-sass": "^4.5.2",
     "nodemon": "^1.11.0",
+    "npm-watch": "^0.3.0",
     "replace-in-file": "^2.5.3",
     "rollup": "^0.47.4",
     "rollup-plugin-node-resolve": "^3.0.0",
@@ -109,7 +125,7 @@
     "supertest": "^2.0.1",
     "ts-jest": "^19.0.8",
     "tslint": "^5.0.0",
-    "typescript": "^2.4.2"
+    "typescript": "^2.5.3"
   },
   "resolutions": {
     "async": "2.1.4",

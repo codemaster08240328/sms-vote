@@ -1,7 +1,10 @@
 {
-    "extends": "../../../tsconfig.json",
     "compilerOptions": {
-        "outFile": "../../dist/common.js",
-        "importHelpers": false
-    }
+        "outFile": "common.js",
+        "importHelpers": false,
+        "module": "none",
+        "target": "es6",
+        "noImplicitAny": true
+    },
+    "compileOnSave": false
 }

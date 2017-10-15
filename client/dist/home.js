@@ -211,6 +211,14 @@ class HomeScreenViewModel {
             this.Editor(null);
         }));
     }
+    Delete(vote) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield Request('vote', 'DELETE', null);
+            if (result.Success) {
+                this.VoteSources.remove(vote);
+            }
+        });
+    }
 }
 
 /// <reference path='../Common/ArrayExtensions.ts'/>
