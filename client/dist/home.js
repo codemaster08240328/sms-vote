@@ -183,7 +183,7 @@ class VoteSourceEditorViewModel {
     Save() {
         return __awaiter(this, void 0, void 0, function* () {
             const dto = this.VoteSource.ToDTO();
-            const result = yield Request('vote', 'PUT', dto);
+            const result = yield Request('vote', 'POST', dto);
             if (result.Success) {
                 dto._id = result.Id;
                 this._closeCallback(dto);

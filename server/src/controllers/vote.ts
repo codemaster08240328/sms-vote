@@ -26,7 +26,7 @@ export const voteSMS = (request: Request, response: Response) => {
             // silently fail for the user
             response.send('<Response></Response>');
         }
-        else if (vote.Enabled === false) {
+        else if (!vote.Enabled) {
             response.send('<Response><Sms>Voting is now closed.</Sms></Response>');
         }
         else if (!utils.testint(body)) {
@@ -62,19 +62,35 @@ export const voteSMS = (request: Request, response: Response) => {
 
 export const saveVote = (req: Request, res: Response, next: NextFunction) => {
     const dto: VoteSourceDTO = req.body;
-    const vote = new VoteSourceModel(dto);
-    vote.save((err: any, product: VoteSourceDocument, numAffected: number) => {
-        if (err) {
-            return next(err);
-        }
+    if (!dto._id) {
+        const vote = new VoteSourceModel(dto);
+        vote.save((err: any, product: VoteSourceDocument) => {
+            if (err) {
+                return next(err);
+            }
 
-        const result: CreateOperationResult = {
-            Success: true,
-            Id: product._id
-        };
+            const result: CreateOperationResult = {
+                Success: true,
+                Id: product._id
+            };
+            res.json(result);
+        });
+    } else {
+        VoteSourceModel.findByIdAndUpdate(dto._id,
+            { Name: dto.Name, PhoneNumber: dto.PhoneNumber, Enabled: dto.Enabled },
+            { upsert: true },
+            (err: any, product: VoteSourceDocument) => {
+                if (err) {
+                    return next(err);
+                }
 
-        res.json(result);
-    });
+                const result: CreateOperationResult = {
+                    Success: true,
+                    Id: product._id
+                };
+                res.json(result);
+            });
+    }
 };
 
 export const deleteVote = (req: Request, res: Response, next: NextFunction) => {

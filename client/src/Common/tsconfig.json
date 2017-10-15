@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "outFile": "common.js",
         "importHelpers": false,
         "module": "none",
         "target": "es6",

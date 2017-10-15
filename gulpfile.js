@@ -22,7 +22,9 @@ gulp.task('compile-common', function () {
 
     return merge([tsResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
-        .pipe(gulp.dest('.'))
+        .pipe(
+            gulp.dest('./client/src/Common')
+        )
     ]);
 });
 

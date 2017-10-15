@@ -1,6 +1,8 @@
 import * as nodemailer from 'nodemailer';
 import { Request, Response } from 'express';
 
+import expressValidator = require('express-validator');
+
 const transporter = nodemailer.createTransport({
   service: 'SendGrid',
   auth: {

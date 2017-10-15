@@ -10,7 +10,8 @@
                 "./types/*",
                 "../../node_modules/@types/*"
             ]
-        }
+        },
+        "sourceRoot": "."
     },
     "include": [
         "./**/*"

@@ -50,17 +50,31 @@ exports.voteSMS = (request, response) => {
 };
 exports.saveVote = (req, res, next) => {
     const dto = req.body;
-    const vote = new VoteSource_1.default(dto);
-    vote.save((err, product, numAffected) => {
-        if (err) {
-            return next(err);
-        }
-        const result = {
-            Success: true,
-            Id: product._id
-        };
-        res.json(result);
-    });
+    if (!dto._id) {
+        const vote = new VoteSource_1.default(dto);
+        vote.save((err, product) => {
+            if (err) {
+                return next(err);
+            }
+            const result = {
+                Success: true,
+                Id: product._id
+            };
+            res.json(result);
+        });
+    }
+    else {
+        VoteSource_1.default.findByIdAndUpdate(dto._id, { Name: dto.Name, PhoneNumber: dto.PhoneNumber, Enabled: dto.Enabled }, { upsert: true }, (err, product) => {
+            if (err) {
+                return next(err);
+            }
+            const result = {
+                Success: true,
+                Id: product._id
+            };
+            res.json(result);
+        });
+    }
 };
 exports.deleteVote = (req, res, next) => {
     VoteSource_1.default.findByIdAndRemove(req.params.voteId, (err, res) => {
