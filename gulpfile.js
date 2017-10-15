@@ -43,7 +43,7 @@ gulp.task('bundle-home', async function () {
         plugins: [
             resolve(),
             rollupTypescriptPlugin({
-                tsconfig: "client/tsconfig.json"
+                tsconfig: "client/src/tsconfig.json"
             })
         ]
     });

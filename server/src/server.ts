@@ -17,6 +17,7 @@ import * as passport from 'passport';
 import * as socketio from 'socket.io';
 import * as http from 'http';
 import * as twilio from 'twilio';
+import twilioConfig from './config/twilio';
 
 import expressValidator = require('express-validator');
 
@@ -140,7 +141,7 @@ app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userControl
 app.get('/vote', passportConfig.isAuthenticated, voteController.getVotes);
 app.post('/vote/', voteController.saveVote);
 app.delete('/vote/:voteId', voteController.deleteVote);
-app.post('/vote/sms', voteController.voteSMS);
+app.post('/vote/sms', twilio.webhook(), voteController.voteSMS);
 
 
 /**

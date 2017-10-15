@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import * as twilio from 'twilio';
 import { default as VoteSourceModel, VoteSourceDocument } from '../models/VoteSource';
 import VoteChoiceDTO from '../../../shared/VoteChoiceDTO';
 import VoteSourceDTO from '../../../shared/VoteSourceDTO';
-import twilioConfig from '../config/twilio';
 import * as utils from '../utils';
 import { OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 
