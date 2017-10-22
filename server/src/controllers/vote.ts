@@ -114,7 +114,7 @@ export const getVotes = (req: Request, res: Response, next: NextFunction) => {
             return next(err);
         }
         votes = votes.map(v => {
-            v.Choices = v.Choices.sort((c1, c2) => c1.Order - c2.Order);
+            v.Choices = v.Choices.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
             return v;
         });
         res.json(votes);

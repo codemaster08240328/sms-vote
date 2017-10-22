@@ -8,7 +8,7 @@ export class VoteSourceEditorViewModel {
     public VoteSource: VoteSourceViewModel;
     public SavingTracker: BusyTracker = new BusyTracker();
 
-    public constructor(dto: VoteSourceDTO, private _closeCallback: (dto: VoteSourceDTO) => void) {
+    public constructor(dto: VoteSourceDTO, private _closeCallback: (dto?: VoteSourceDTO) => void) {
         this.VoteSource = new VoteSourceViewModel(dto);
     }
 
@@ -22,7 +22,7 @@ export class VoteSourceEditorViewModel {
     }
 
     public Cancel() {
-        this._closeCallback(this.VoteSource.ToDTO());
+        this._closeCallback();
     }
 }
 

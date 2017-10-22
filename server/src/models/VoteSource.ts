@@ -12,9 +12,8 @@ const VoteSourceSchema: mongoose.Schema = new mongoose.Schema({
     Enabled: String,
     Choices:
     [{
-        Id: String,
         Name: String,
-        Order: {type: Number, default: 0},
+        VoteKey: {type: Number, default: 0},
         Numbers: [{ type: String }]
     }],
     PhoneNumber: String

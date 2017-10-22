@@ -1,7 +1,7 @@
 declare interface VoteChoiceDTO {
-    _id: any;
+    _id: string;
     Name: string;
-    Order: number;
+    VoteKey: number;
     Numbers: string[];
 }
 

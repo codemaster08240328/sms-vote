@@ -18,15 +18,38 @@ export class HomeScreenViewModel {
             }));
     }
 
+    public AddNew() {
+        this.Editor(new VoteSourceEditorViewModel({
+            _id: null,
+            Name: '',
+            Enabled: false,
+            Choices: [{
+                _id: undefined,
+                Name: '',
+                VoteKey: 1,
+                Numbers: []
+            }],
+            PhoneNumber: ''
+        },
+        (result) => {
+            if (result) {
+                this.VoteSources.push(result);
+            }
+            this.Editor(null);
+        }));
+    }
+
     public Edit(vote: VoteSourceDTO) {
         this.Editor(new VoteSourceEditorViewModel(vote, (result) => {
-            this.VoteSources.replace(vote, result);
+            if (result) {
+                this.VoteSources.replace(vote, result);
+            }
             this.Editor(null);
         }));
     }
 
     public async Delete(vote: VoteSourceDTO) {
-        const result = await Request<OperationResult>('vote', 'DELETE', null);
+        const result = await Request<OperationResult>(`/vote/${vote._id}`, 'DELETE', null);
         if (result.Success) {
             this.VoteSources.remove(vote);
         }

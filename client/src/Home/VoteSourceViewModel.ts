@@ -34,7 +34,7 @@ export class VoteSourceViewModel {
         this.Choices.push(new VoteChoiceViewModel({
             _id: undefined,
             Name: '',
-            Order: this.Choices().length,
+            VoteKey: this.Choices().length,
             Numbers: []
         }));
     }
