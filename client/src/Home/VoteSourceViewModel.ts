@@ -24,10 +24,23 @@ export class VoteSourceViewModel {
             _id: this._id,
             Name: this.Name(),
             Enabled: this.Enabled(),
-            Choices: this.Choices().map(c => c.ToDTO()),
+            Choices: this.Choices().map((c, idx) => c.ToDTO(idx)),
             PhoneNumber: this.PhoneNumber()
         };
         return dto;
+    }
+
+    public AddChoice(): void {
+        this.Choices.push(new VoteChoiceViewModel({
+            _id: undefined,
+            Name: '',
+            Order: this.Choices().length,
+            Numbers: []
+        }));
+    }
+
+    public DeleteChoice(choice: VoteChoiceViewModel): void {
+        this.Choices.remove(choice);
     }
 }
 

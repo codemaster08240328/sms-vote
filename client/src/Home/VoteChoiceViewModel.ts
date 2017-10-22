@@ -14,11 +14,12 @@ export class VoteSourceViewModel {
         this.Numbers(dto.Numbers);
     }
 
-    public ToDTO() {
+    public ToDTO(index: number) {
         const dto: VoteChoiceDTO = {
+            _id: this._id,
             Name: this.Name(),
-            Numbers: this.Numbers(),
-            _id: this._id
+            Order: index,
+            Numbers: this.Numbers()
         };
         return dto;
     }

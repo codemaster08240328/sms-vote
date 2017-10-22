@@ -14,6 +14,20 @@
             "problemMatcher": [
                 "$tsc"
             ]
+        },
+        {
+            "type": "gulp",
+            "task": "build-client",
+            "problemMatcher": [
+                "$gulp-tsc"
+            ]
+        },
+        {
+            "type": "gulp",
+            "task": "build-server",
+            "problemMatcher": [
+                "$gulp-tsc"
+            ]
         }
     ]
 }

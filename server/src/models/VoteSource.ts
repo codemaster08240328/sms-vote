@@ -14,6 +14,7 @@ const VoteSourceSchema: mongoose.Schema = new mongoose.Schema({
     [{
         Id: String,
         Name: String,
+        Order: {type: Number, default: 0},
         Numbers: [{ type: String }]
     }],
     PhoneNumber: String
@@ -26,5 +27,5 @@ VoteSourceSchema.methods.hasVoted = function(phoneNumber: string): boolean {
         .find(n => n === phoneNumber) ? true : false;
     };
 
-const VoteSourceModel = mongoose.model('VoteSource', VoteSourceSchema);
+const VoteSourceModel = mongoose.model<VoteSourceDocument>('VoteSource', VoteSourceSchema);
 export default VoteSourceModel;

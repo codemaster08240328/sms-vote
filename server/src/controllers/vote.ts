@@ -75,7 +75,12 @@ export const saveVote = (req: Request, res: Response, next: NextFunction) => {
         });
     } else {
         VoteSourceModel.findByIdAndUpdate(dto._id,
-            { Name: dto.Name, PhoneNumber: dto.PhoneNumber, Enabled: dto.Enabled },
+            {
+                Name: dto.Name,
+                PhoneNumber: dto.PhoneNumber,
+                Enabled: dto.Enabled,
+                Choices: dto.Choices
+            },
             { upsert: true },
             (err: any, product: VoteSourceDocument) => {
                 if (err) {
@@ -108,6 +113,10 @@ export const getVotes = (req: Request, res: Response, next: NextFunction) => {
         if (err) {
             return next(err);
         }
+        votes = votes.map(v => {
+            v.Choices = v.Choices.sort((c1, c2) => c1.Order - c2.Order);
+            return v;
+        });
         res.json(votes);
     });
 };

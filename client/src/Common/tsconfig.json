@@ -3,7 +3,9 @@
         "importHelpers": false,
         "module": "none",
         "target": "es6",
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "outFile": "common.js",
+        "sourceMap": true
     },
     "compileOnSave": false
 }
