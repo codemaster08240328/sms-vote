@@ -1,0 +1,88 @@
+.drag-handle {
+	margin-right: 10px;
+	font: bold 20px Sans-Serif;
+	color: #5F9EDF;
+	display: inline-block;
+	cursor: move;
+	cursor: -webkit-grabbing;  /* overrides 'move' */
+}
+
+#editable {}
+    #editable li {
+        position: relative;
+    }
+
+    #editable i {
+        -webkit-transition: opacity .2s;
+        transition: opacity .2s;
+        opacity: 0;
+        display: block;
+        cursor: pointer;
+        color: #c00;
+        top: 10px;
+        right: 40px;
+        position: absolute;
+        font-style: normal;
+    }
+
+    #editable li:hover i {
+        opacity: 1;
+    }
+
+/* CSS used here will be applied after bootstrap.css */
+li.squish {
+    padding: 0;
+  }
+
+.rounded {
+    display: block;
+    width: 100%;
+    height: 45px;
+    padding: 10px 15px;
+    font-size: 15px;
+
+    line-height: 35px;
+    min-height: 20px;
+    padding: 9px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  }
+
+.primary {
+    color: #fff;
+    background-color: #375a7f;
+}
+
+
+
+.table > tbody > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #464545;
+}
+
+hr.highlight {
+    border-color: #00bc8c;
+}
+
+footer {
+    margin: 5em 0
+}
+
+footer li {
+    float: left;
+    margin-right: 1.5em;
+    margin-bottom: 1.5em
+}
+
+footer p {
+    clear: left;
+    margin-bottom: 0
+}
+
+button.btn-default {
+    margin-left: 7px
+}

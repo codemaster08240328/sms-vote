@@ -1,0 +1,20 @@
+[{
+  "Name": "Test Voting",
+  "Choices": [{
+    "VoteKey": 1,
+    "Name": "foo",
+    "Numbers": []
+  },
+  {
+    "VoteKey": 2,
+    "Name": "bar",
+    "Numbers": []
+  },
+  {
+    "VoteKey": 3,
+    "Name": "baz",
+    "Numbers": []
+  }],
+  "PhoneNumber": "16479526483",
+  "Enabled": true
+}]

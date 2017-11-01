@@ -1,0 +1,114 @@
+extends layout
+
+block content
+    #koroot.container
+        .page-header
+            .row
+                .col-sm-6
+                    h1 Art Battle Vote Administration
+                    hr.highlight
+        .clearfix
+            if (!user)
+                .row
+                    .col-sm-6
+                        p Log in to create a voting session, or view and edit existing ones
+                        p
+                            a.btn.btn-default(href='/login', role='button') Log In »
+            else
+                // ko if: Editor
+                // ko with: Editor
+                .row
+                    // ko with: VoteSource
+                    .col-sm-6
+                        .panel.panel-primary
+                            .row
+                                h3.col-sm-offset-1.col-sm-4 Details
+                            form.form-horizontal
+                                .form-group
+                                    label.col-sm-3.control-label(for='inputVoteName') Name
+                                    .col-sm-8
+                                        input#inputVoteName.form-control(type='text', placeholder='Name', data-bind='value: Name')
+                                .form-group
+                                    label.col-sm-3.control-label(for='inputPhoneNumber') Phone Number
+                                    .col-sm-8
+                                        input#inputPhoneNumber.form-control(type='tel', placeholder='PhoneNumber', data-bind='value: PhoneNumber')
+                                .form-group
+                                    label.col-sm-3.control-label(for='chkEnabled') Enabled
+                                    .col-sm-1
+                                        input#chkEnabled.form-control.checkbox-inline(type='checkbox', data-bind='checked: Enabled')
+                    .col-sm-ofset-1.col-sm-6
+                        .panel.panel-primary
+                            .row
+                                .col-sm-offset-1.col-sm-10
+                                    h3 Candidates
+                                    table.table
+                                        thead
+                                            tr
+                                                th #
+                                                th Name
+                                                th
+                                                th Sort
+                                        tbody(data-bind="sortable: { foreach: Choices, options: { handle: '.drag-handle' } }")
+                                            tr
+                                                td.col-sm-1
+                                                    .input-sm.text-success(data-bind="text: $index() + 1")
+                                                td.col-sm-7
+                                                    input.input-sm.form-control(type='text', data-bind='value: Name')
+                                                td.col-sm-1
+                                                    button.btn.btn-sm.btn-danger(data-bind='click: () => { $parent.DeleteChoice($data); }')
+                                                        i.glyphicon.glyphicon-trash
+                                                td.col-sm-1
+                                                    .input-sm
+                                                        span.drag-handle
+                                                            i.glyphicon.glyphicon-menu-hamburger
+                            .row
+                                .col-sm-offset-11.col-sm-1
+                                    button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddChoice')
+                                        i.glyphicon.glyphicon-plus
+                                        |  Add New
+                                
+                    // /ko
+                .row
+                    .col-sm-offset-10.col-sm-2
+                        button.btn.btn-default.pull-right(data-bind='click: Cancel') Cancel
+                        button.btn.btn-primary.pull-right(data-bind='click: Save') Save
+                // /ko
+                // /ko
+
+                // ko ifnot: Editor
+                .row
+                    .col-sm-9
+                        .panel.panel-primary
+                            .row
+                                .col-sm-12
+                                    table.table.table-hover
+                                        thead
+                                            th Name
+                                            th PhoneNumber
+                                            th Enabled
+                                            th Edit
+                                            th Delete
+                                        tbody
+                                            // ko foreach: VoteSources
+                                            tr
+                                                td(data-bind='text: Name')
+                                                td(data-bind='text: PhoneNumber')
+                                                td
+                                                    input(type='checkbox', data-bind='enable: false, checked: Enabled')
+                                                td
+                                                    button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parent.Edit($data); }")
+                                                        i.glyphicon.glyphicon-pencil
+                                                td
+                                                    button.btn.btn-danger.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Delete", data-bind="click: function() { $parent.Delete($data); }")
+                                                        i.glyphicon.glyphicon-trash
+                                            // /ko
+                            .row
+                                .col-sm-offset-11.col-sm-1
+                                    button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddNew')
+                                        i.glyphicon.glyphicon-plus
+                                        |  Add New
+                // /ko
+block append scripts
+    if(user)
+        script(src='/js/home.js')
+    
