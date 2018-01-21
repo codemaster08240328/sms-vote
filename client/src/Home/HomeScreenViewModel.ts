@@ -12,7 +12,7 @@ export class HomeScreenViewModel {
     public LoadingTracker: BusyTracker = new BusyTracker();
 
     public constructor() {
-        this.LoadingTracker.AddOperation(Request<VoteSourceDTO[]>('/vote', 'GET')
+        this.LoadingTracker.AddOperation(Request<VoteSourceDTO[]>('api/vote', 'GET')
             .then((dtos) => {
                 this.VoteSources(dtos);
             }));
@@ -49,7 +49,7 @@ export class HomeScreenViewModel {
     }
 
     public async Delete(vote: VoteSourceDTO) {
-        const result = await Request<OperationResult>(`/vote/${vote._id}`, 'DELETE', null);
+        const result = await Request<OperationResult>(`api/vote/${vote._id}`, 'DELETE', null);
         if (result.Success) {
             this.VoteSources.remove(vote);
         }

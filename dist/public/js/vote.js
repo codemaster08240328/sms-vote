@@ -1,6 +1,18 @@
 (function (ko$1) {
 'use strict';
 
+class CandidateViewModel {
+    constructor(dto, Rank) {
+        this.Rank = Rank;
+        this.VoteKey = null;
+        this.Name = null;
+        this.Votes = null;
+        this.VoteKey = dto.VoteKey;
+        this.Name = dto.Name;
+        this.Votes = dto.Numbers.length;
+    }
+}
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -68,60 +80,6 @@ function Request(url, method, data) {
     });
 }
 
-class VoteSourceViewModel$2 {
-    constructor(dto) {
-        this.Name = ko$1.observable();
-        this.Numbers = ko$1.observableArray();
-        this._id = dto._id;
-        this.Name(dto.Name);
-        this.Numbers(dto.Numbers);
-    }
-    ToDTO(index) {
-        const dto = {
-            _id: this._id,
-            Name: this.Name(),
-            VoteKey: index + 1,
-            Numbers: this.Numbers()
-        };
-        return dto;
-    }
-}
-
-class VoteSourceViewModel {
-    constructor(dto) {
-        this.Name = ko.observable();
-        this.Enabled = ko.observable();
-        this.Choices = ko.observableArray();
-        this.PhoneNumber = ko.observable();
-        this._id = dto._id;
-        this.Name(dto.Name);
-        this.Enabled(dto.Enabled);
-        this.Choices(dto.Choices.map(c => new VoteSourceViewModel$2(c)));
-        this.PhoneNumber(dto.PhoneNumber);
-    }
-    ToDTO() {
-        const dto = {
-            _id: this._id,
-            Name: this.Name(),
-            Enabled: this.Enabled(),
-            Choices: this.Choices().map((c, idx) => c.ToDTO(idx)),
-            PhoneNumber: this.PhoneNumber()
-        };
-        return dto;
-    }
-    AddChoice() {
-        this.Choices.push(new VoteSourceViewModel$2({
-            _id: undefined,
-            Name: '',
-            VoteKey: this.Choices().length,
-            Numbers: []
-        }));
-    }
-    DeleteChoice(choice) {
-        this.Choices.remove(choice);
-    }
-}
-
 class BusyTracker {
     constructor() {
         this._tasks = ko.observableArray();
@@ -186,79 +144,28 @@ class BusyTracker {
     }
 }
 
-class VoteSourceEditorViewModel {
-    constructor(dto, _closeCallback) {
-        this._closeCallback = _closeCallback;
-        this.SavingTracker = new BusyTracker();
-        this.VoteSource = new VoteSourceViewModel(dto);
-    }
-    Save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const dto = this.VoteSource.ToDTO();
-            const result = yield Request('api/vote', 'POST', dto);
-            if (result.Success) {
-                dto._id = result.Id;
-                this._closeCallback(dto);
-            }
-        });
-    }
-    Cancel() {
-        this._closeCallback();
-    }
-}
-
-class HomeScreenViewModel {
+class VotingResultsViewModel$1 {
     constructor() {
-        this.VoteSources = ko$1.observableArray();
-        this.Editor = ko$1.observable();
+        this.Name = ko.observable();
+        this.Candidates = ko.observableArray();
         this.LoadingTracker = new BusyTracker();
-        this.LoadingTracker.AddOperation(Request('api/vote', 'GET')
-            .then((dtos) => {
-            this.VoteSources(dtos);
+        const voteChoiceId = new URLSearchParams(location.search.slice(1)).get('id');
+        this.LoadingTracker.AddOperation(Request(`api/vote/${voteChoiceId}`, 'GET')
+            .then((dto) => {
+            this.Name(dto.Name);
+            const candidates = dto.Choices
+                .sort((a, b) => b.Numbers.length - a.Numbers.length)
+                .map((c, idx) => new CandidateViewModel(c, idx + 1));
+            this.Candidates(candidates);
         }));
-    }
-    AddNew() {
-        this.Editor(new VoteSourceEditorViewModel({
-            _id: null,
-            Name: '',
-            Enabled: false,
-            Choices: [{
-                    _id: undefined,
-                    Name: '',
-                    VoteKey: 1,
-                    Numbers: []
-                }],
-            PhoneNumber: ''
-        }, (result) => {
-            if (result) {
-                this.VoteSources.push(result);
-            }
-            this.Editor(null);
-        }));
-    }
-    Edit(vote) {
-        this.Editor(new VoteSourceEditorViewModel(vote, (result) => {
-            if (result) {
-                this.VoteSources.replace(vote, result);
-            }
-            this.Editor(null);
-        }));
-    }
-    Delete(vote) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield Request(`api/vote/${vote._id}`, 'DELETE', null);
-            if (result.Success) {
-                this.VoteSources.remove(vote);
-            }
-        });
     }
 }
 
 /// <reference path='../Common/ArrayExtensions.ts'/>
 /// <reference path='../Common/StringExtensions.ts'/>
-const vm = new HomeScreenViewModel();
+const vm = new VotingResultsViewModel$1();
 const koRoot = document.getElementById('koroot');
 ko$1.applyBindings(vm, koRoot);
 
 }(ko));
-//# sourceMappingURL=home.js.map
+//# sourceMappingURL=vote.js.map

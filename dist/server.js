@@ -106,6 +106,7 @@ io.on('connection', (socket) => {
  * Primary app routes.
  */
 app.get('/', homeController.index);
+app.get('/vote', voteController.index);
 app.get('/login', userController.getLogin);
 app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);
@@ -122,10 +123,14 @@ app.post('/account/profile', passportConfig.isAuthenticated, userController.post
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
-app.get('/vote', passportConfig.isAuthenticated, voteController.getVotes);
-app.post('/vote/', voteController.saveVote);
-app.delete('/vote/:voteId', voteController.deleteVote);
-app.post('/vote/sms', twilio.webhook(), voteController.voteSMS);
+/**
+ * Api routes.
+ */
+app.get('/api/vote', passportConfig.isAuthenticated, voteController.getVotes);
+app.get('/api/vote/:voteId', voteController.getVote);
+app.post('/api/vote/', voteController.saveVote);
+app.delete('/api/vote/:voteId', passportConfig.isAuthenticated, voteController.deleteVote);
+app.post('/api/vote/sms', twilio.webhook(), voteController.voteSMS);
 /**
  * Error Handler. Provides full stack - remove for production
  */

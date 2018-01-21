@@ -14,7 +14,7 @@ export class VoteSourceEditorViewModel {
 
     public async Save() {
         const dto = this.VoteSource.ToDTO();
-        const result = await Request<CreateOperationResult>('vote', 'POST', dto);
+        const result = await Request<CreateOperationResult>('api/vote', 'POST', dto);
         if (result.Success) {
             dto._id = result.Id;
             this._closeCallback(dto);

@@ -47,7 +47,7 @@ block content
                                                 th Name
                                                 th
                                                 th Sort
-                                        tbody(data-bind="sortable: { foreach: Choices, options: { handle: '.drag-handle' } }")
+                                        tbody(data-bind="sortable: Choices")
                                             tr
                                                 td.col-sm-1
                                                     .input-sm.text-success(data-bind="text: $index() + 1")
@@ -56,10 +56,9 @@ block content
                                                 td.col-sm-1
                                                     button.btn.btn-sm.btn-danger(data-bind='click: () => { $parent.DeleteChoice($data); }')
                                                         i.glyphicon.glyphicon-trash
-                                                td.col-sm-1
+                                                td.col-sm-1.drag-handle
                                                     .input-sm
-                                                        span.drag-handle
-                                                            i.glyphicon.glyphicon-menu-hamburger
+                                                        i.glyphicon.glyphicon-menu-hamburger
                             .row
                                 .col-sm-offset-11.col-sm-1
                                     button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddChoice')
@@ -75,22 +74,26 @@ block content
                 // /ko
 
                 // ko ifnot: Editor
+
                 .row
-                    .col-sm-9
+                    .col-sm-8
                         .panel.panel-primary
                             .row
-                                .col-sm-12
+                                .col-sm-offset-1.col-sm-10
                                     table.table.table-hover
                                         thead
-                                            th Name
-                                            th PhoneNumber
-                                            th Enabled
-                                            th Edit
-                                            th Delete
+                                            tr
+                                                th Name
+                                                th Phone Number
+                                                th Live
+                                                th Edit
+                                                th Delete
                                         tbody
                                             // ko foreach: VoteSources
                                             tr
-                                                td(data-bind='text: Name')
+                                                td
+                                                    a(data-bind="attr: { href: '/vote?id=' + _id }")
+                                                        span(data-bind='text: Name')
                                                 td(data-bind='text: PhoneNumber')
                                                 td
                                                     input(type='checkbox', data-bind='enable: false, checked: Enabled')
@@ -107,7 +110,7 @@ block content
                                         i.glyphicon.glyphicon-plus
                                         |  Add New
                 // /ko
+
 block append scripts
     if(user)
         script(src='/js/home.js')
-    

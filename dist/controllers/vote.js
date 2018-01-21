@@ -2,6 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const VoteSource_1 = require("../models/VoteSource");
 const utils = require("../utils");
+/**
+ * GET /
+ * Vote results
+ */
+exports.index = (req, res) => {
+    VoteSource_1.default.findById(req.query.id, (err, voteSource) => {
+        res.render('vote', {
+            title: `Results for ${voteSource.Name}`
+        });
+    });
+};
 exports.voteSMS = (request, response) => {
     response.header('Content-Type', 'text/xml');
     const body = request.param('Body').trim();
@@ -13,7 +24,7 @@ exports.voteSMS = (request, response) => {
         .limit(1)
         .exec((err, votes) => {
         const vote = votes[0];
-        if (err) {
+        if (err || votes.length < 1) {
             console.log(err);
             // silently fail for the user
             response.send('<Response></Response>');
@@ -82,13 +93,14 @@ exports.saveVote = (req, res, next) => {
     }
 };
 exports.deleteVote = (req, res, next) => {
-    VoteSource_1.default.findByIdAndRemove(req.params.voteId, (err, res) => {
+    VoteSource_1.default.findByIdAndRemove(req.params.voteId, (err, product) => {
         if (err) {
             return next(err);
         }
         const result = {
             Success: true
         };
+        res.json(result);
     });
 };
 exports.getVotes = (req, res, next) => {
@@ -97,10 +109,19 @@ exports.getVotes = (req, res, next) => {
             return next(err);
         }
         votes = votes.map(v => {
-            v.Choices = v.Choices.sort((c1, c2) => c1.Order - c2.Order);
+            v.Choices = v.Choices.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
             return v;
         });
         res.json(votes);
+    });
+};
+exports.getVote = (req, res, next) => {
+    VoteSource_1.default.findById(req.params.voteId, (err, vote) => {
+        if (err) {
+            return next(err);
+        }
+        vote.Choices = vote.Choices.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
+        res.json(vote);
     });
 };
 

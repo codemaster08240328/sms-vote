@@ -92,7 +92,11 @@ gulp.task('build-home', async function () {
     return bundle('client/src/tsconfig.json', './client/src/Home/Home.ts', 'dist/public/js/home.js');
 });
 
-gulp.task('build-client', ['build-common', 'build-home']);
+gulp.task('build-vote', async function () {
+    return bundle('client/src/tsconfig.json', './client/src/VoteResults/Vote.ts', 'dist/public/js/vote.js');
+});
+
+gulp.task('build-client', ['build-common', 'build-home', 'build-vote']);
 
 gulp.task('build-server', function() {
     return compile('./server/src/tsconfig.json', './dist');

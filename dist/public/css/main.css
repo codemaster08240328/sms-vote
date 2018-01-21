@@ -64,6 +64,10 @@ li.squish {
   border-top: 1px solid #464545;
 }
 
+.table > thead > tr > th {
+    padding-top: 20px;
+  }
+
 hr.highlight {
     border-color: #00bc8c;
 }
@@ -86,3 +90,4 @@ footer p {
 button.btn-default {
     margin-left: 7px
 }
+

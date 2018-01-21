@@ -5,6 +5,18 @@ import VoteSourceDTO from '../../../shared/VoteSourceDTO';
 import * as utils from '../utils';
 import { OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 
+/**
+ * GET /
+ * Vote results
+ */
+export let index = (req: Request, res: Response) => {
+    VoteSourceModel.findById(req.query.id, (err, voteSource) => {
+        res.render('vote', {
+            title: `Results for ${voteSource.Name}`
+        });
+    });
+};
+
 export const voteSMS = (request: Request, response: Response) => {
     response.header('Content-Type', 'text/xml');
     const body = request.param('Body').trim();
@@ -19,7 +31,7 @@ export const voteSMS = (request: Request, response: Response) => {
         .limit(1)
         .exec((err, votes: VoteSourceDocument[]) => {
         const vote = votes[0];
-        if (err) {
+        if (err || votes.length < 1) {
             console.log(err);
             // silently fail for the user
             response.send('<Response></Response>');
@@ -97,7 +109,7 @@ export const saveVote = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const deleteVote = (req: Request, res: Response, next: NextFunction) => {
-    VoteSourceModel.findByIdAndRemove(req.params.voteId, (err, res: VoteSourceDocument) => {
+    VoteSourceModel.findByIdAndRemove(req.params.voteId, (err, product: VoteSourceDocument) => {
         if (err) {
             return next(err);
         }
@@ -105,6 +117,8 @@ export const deleteVote = (req: Request, res: Response, next: NextFunction) => {
         const result: OperationResult = {
             Success: true
         };
+
+        res.json(result);
     });
 };
 
@@ -118,5 +132,15 @@ export const getVotes = (req: Request, res: Response, next: NextFunction) => {
             return v;
         });
         res.json(votes);
+    });
+};
+
+export const getVote = (req: Request, res: Response, next: NextFunction) => {
+    VoteSourceModel.findById(req.params.voteId, (err, vote: VoteSourceDocument) => {
+        if (err) {
+            return next(err);
+        }
+        vote.Choices = vote.Choices.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
+        res.json(vote);
     });
 };

@@ -1,0 +1,39 @@
+extends layout
+
+block content
+    .page-header
+        .row
+            .col-sm-6
+                h1 Art Battle Vote Administration
+                hr.highlight
+    .clearfix
+        .row
+            .col-sm-8
+                .panel.panel-primary
+                    .row
+                        .col-sm-offset-1.col-sm-10
+                            h3(data-bind="text: 'Voting results for ' + Name()")
+                            table.table
+                                thead
+                                    tr
+                                        th Rank
+                                        th Name
+                                        th Contestant #
+                                        th Votes
+                                tbody(data-bind="foreach: Candidates")
+                                    tr
+                                        td.col-sm-1
+                                            .input-sm.text-success(data-bind="text: Rank")
+                                        td.col-sm-6
+                                            .input-sm(type='text', data-bind='text: Name')
+                                        td.col-sm-2
+                                            .input-sm(type='text', data-bind='text: VoteKey')
+                                        td.col-sm-1
+                                            .input-sm(type='text', data-bind='text: Votes')
+        .row
+            .col-sm-offset-6.col-sm-2
+                a.btn.btn-default.pull-right(href="/") Back
+
+block append scripts
+    if(user)
+        script(src='/js/vote.js')
