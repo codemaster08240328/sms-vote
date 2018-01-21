@@ -20,6 +20,8 @@ import * as twilio from 'twilio';
 import twilioConfig from './config/twilio';
 
 import expressValidator = require('express-validator');
+require('./common/ArrayExtensions');
+require('./common/StringExtensions');
 
 
 const MongoStore = mongo(session);

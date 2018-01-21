@@ -43,7 +43,7 @@ export const voteSMS = (request: Request, response: Response) => {
             console.log('Bad vote: ' + vote.Name + ', ' + from + ', ' + body);
             response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + vote.Choices.length + '</Sms></Response>');
         }
-        else if (utils.testint(body) && (parseInt(body) <= 0 || parseInt(body) > vote.Choices.length)) {
+        else if (utils.testint(body) && (parseInt(body) <= 0 || !vote.Choices.map(c => c.VoteKey).contains(parseInt(body)))) {
             console.log('Bad vote: ' + vote.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + vote.Choices.length + ']'));
             response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + vote.Choices.length + '</Sms></Response>');
         }
@@ -52,10 +52,11 @@ export const voteSMS = (request: Request, response: Response) => {
             response.send('<Response><Sms>Sorry, you are only allowed to vote once.</Sms></Response>');
         }
         else {
-
             const choice = parseInt(body);
 
-            vote.Choices[choice].Numbers.push(from);
+            vote.Choices
+                .find(c => c.VoteKey === choice)
+                .Numbers.push(from);
 
             vote.save((err) => {
                 if (err) {

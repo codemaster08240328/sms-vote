@@ -20,6 +20,8 @@ const socketio = require("socket.io");
 const http = require("http");
 const twilio = require("twilio");
 const expressValidator = require("express-validator");
+require('./common/ArrayExtensions');
+require('./common/StringExtensions');
 const MongoStore = mongo(session);
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
