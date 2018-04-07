@@ -17,8 +17,9 @@ const flash = require("express-flash");
 const path = require("path");
 const mongoose = require("mongoose");
 const passport = require("passport");
-const socketio = require("socket.io");
+// import * as socketio from 'socket.io';
 const https = require("https");
+const http = require("http");
 const expressValidator = require("express-validator");
 require('./common/ArrayExtensions');
 require('./common/StringExtensions');
@@ -41,7 +42,7 @@ const passportConfig = require("./config/passport");
 const key = fs.readFileSync('./server/privkey.pem');
 const cert = fs.readFileSync('./server/cert.pem');
 const ca = fs.readFileSync('./server/my-private-root-ca.cert.pem');
-const options = {
+const ssl_options = {
     key: key,
     cert: cert,
     ca: ca
@@ -50,11 +51,10 @@ const options = {
  * Create Express server.
  */
 const app = express();
-const httpServer = https.createServer(options, app);
-const io = socketio(httpServer);
-io.on('connection', (socket) => {
-    console.log('a user connected');
-});
+// const io = socketio(httpServer);
+// io.on('connection', (socket: SocketIO.Socket) => {
+//     console.log('a user connected');
+// });
 /**
  * Connect to MongoDB.
  */
@@ -67,6 +67,7 @@ mongoose.connection.on('error', () => {
 app.use((req, res, next) => {
     console.log('request received');
     console.log(req);
+    next();
 });
 /**
  * Express configuration.
@@ -113,9 +114,9 @@ app.use((req, res, next) => {
     next();
 });
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
-io.on('connection', (socket) => {
-    console.log('a user connected');
-});
+// io.on('connection', (socket) => {
+//     console.log('a user connected');
+// });
 /**
  * Primary app routes.
  */
@@ -152,7 +153,9 @@ app.use(errorHandler());
 /**
  * Start Express server.
  */
-app.listen(app.get('port'), () => {
+const httpsServer = https.createServer(ssl_options, app);
+const httpServer = http.createServer(app);
+httpsServer.listen(app.get('port'), () => {
     console.log(('  App is running at http://localhost:%d in %s mode'), app.get('port'), app.get('env'));
     console.log('  Press CTRL-C to stop\n');
 });
