@@ -1,6 +1,7 @@
 /**
  * Module dependencies.
  */
+import * as fs from 'fs';
 import * as express from 'express';
 import * as compression from 'compression';  // compresses requests
 import * as session from 'express-session';
@@ -15,7 +16,7 @@ import * as path from 'path';
 import * as mongoose from 'mongoose';
 import * as passport from 'passport';
 import * as socketio from 'socket.io';
-import * as http from 'http';
+import * as https from 'https';
 import * as twilio from 'twilio';
 import twilioConfig from './config/twilio';
 
@@ -46,12 +47,22 @@ import * as voteController from './controllers/vote';
  */
 import * as passportConfig from './config/passport';
 
+const key = fs.readFileSync('./server/privkey.pem');
+const cert = fs.readFileSync('./server/cert.pem');
+const ca = fs.readFileSync('./server/my-private-root-ca.cert.pem');
+
+const options = {
+    key: key,
+    cert: cert,
+    ca: ca
+};
+
 /**
  * Create Express server.
  */
 const app = express();
 
-const httpServer = http.createServer(app);
+const httpServer = https.createServer(options, app);
 const io = socketio(httpServer);
 
 io.on('connection', (socket: SocketIO.Socket) => {

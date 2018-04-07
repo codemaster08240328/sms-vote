@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Module dependencies.
  */
+const fs = require("fs");
 const express = require("express");
 const compression = require("compression"); // compresses requests
 const session = require("express-session");
@@ -17,7 +18,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const socketio = require("socket.io");
-const http = require("http");
+const https = require("https");
 const twilio = require("twilio");
 const expressValidator = require("express-validator");
 require('./common/ArrayExtensions');
@@ -38,11 +39,19 @@ const voteController = require("./controllers/vote");
  * API keys and Passport configuration.
  */
 const passportConfig = require("./config/passport");
+const key = fs.readFileSync('./server/privkey.pem');
+const cert = fs.readFileSync('./server/cert.pem');
+const ca = fs.readFileSync('./server/my-private-root-ca.cert.pem');
+const options = {
+    key: key,
+    cert: cert,
+    ca: ca
+};
 /**
  * Create Express server.
  */
 const app = express();
-const httpServer = http.createServer(app);
+const httpServer = https.createServer(options, app);
 const io = socketio(httpServer);
 io.on('connection', (socket) => {
     console.log('a user connected');
