@@ -18,6 +18,8 @@ export let index = (req: Request, res: Response) => {
 };
 
 export const voteSMS = (request: Request, response: Response) => {
+    console.log('sms vote received ' + request);
+
     response.header('Content-Type', 'text/xml');
     const body = request.param('Body').trim();
 

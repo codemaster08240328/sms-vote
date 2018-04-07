@@ -80,7 +80,10 @@ mongoose.connection.on('error', () => {
     process.exit();
 });
 
-
+app.use((req, res, next) => {
+    console.log('request received');
+    console.log(req);
+});
 
 /**
  * Express configuration.

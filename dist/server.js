@@ -65,6 +65,10 @@ mongoose.connection.on('error', () => {
     console.log('MongoDB connection error. Please make sure MongoDB is running.');
     process.exit();
 });
+app.use((req, res, next) => {
+    console.log('request received');
+    console.log(req);
+});
 /**
  * Express configuration.
  */

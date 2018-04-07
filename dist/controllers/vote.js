@@ -14,6 +14,7 @@ exports.index = (req, res) => {
     });
 };
 exports.voteSMS = (request, response) => {
+    console.log('sms vote received ' + request);
     response.header('Content-Type', 'text/xml');
     const body = request.param('Body').trim();
     // the number the vote it being sent to (this should match an Event)
