@@ -163,7 +163,7 @@ app.get('/api/vote', passportConfig.isAuthenticated, voteController.getVotes);
 app.get('/api/vote/:voteId', voteController.getVote);
 app.post('/api/vote/', voteController.saveVote);
 app.delete('/api/vote/:voteId', passportConfig.isAuthenticated, voteController.deleteVote);
-app.post('/api/vote/sms', twilio.webhook(), voteController.voteSMS);
+app.post('/api/vote/sms', voteController.voteSMS);
 
 
 /**
