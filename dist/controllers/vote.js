@@ -26,9 +26,10 @@ exports.voteSMS = (request, response) => {
         .exec((err, votes) => {
         const vote = votes[0];
         if (err || votes.length < 1) {
-            console.log(err);
+            console.log('Error: ' + err);
+            console.log('No vote is configured for phone number: ' + to);
             // silently fail for the user
-            response.send('<Response></Response>');
+            response.send('<Response>Sorry this vote is not open</Response>');
         }
         else if (!vote.Enabled) {
             response.send('<Response><Sms>Voting is now closed.</Sms></Response>');
