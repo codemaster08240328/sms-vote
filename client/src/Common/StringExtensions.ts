@@ -1,6 +1,7 @@
 ﻿interface String {
     startsWith(str: string): boolean;
     compareTo(s: string, ignoreCase: boolean): number;
+    contains(str: string): boolean;
 }
 
 interface StringConstructor {
@@ -8,6 +9,13 @@ interface StringConstructor {
     concat(...strings: string[]): string;
     format(format: string, ...values: any[]): string;
     compareTo(str1: string, str2: string, ignoreCase: boolean): number;
+    contains(str: string): boolean;
+}
+
+if (!String.prototype.contains) {
+    String.prototype.contains = function (str: string) {
+        return this.indexOf(str) > -1;
+    };
 }
 
 if (!String.prototype.compareTo) {
@@ -60,13 +68,6 @@ if (!String.concat) {
             return arguments[0] + arguments[1];
         }
         return Array.prototype.join.call(arguments, '');
-    };
-}
-
-// MA: Deprecating this in favour of template strings. leaving it here in case we need it back.
-if (!String.format) {
-    String.format = function (format, ...values) {
-        return __format(format, arguments, false);
     };
 }
 

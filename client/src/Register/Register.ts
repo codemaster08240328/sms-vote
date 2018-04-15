@@ -2,9 +2,10 @@
 /// <reference path='../Common/StringExtensions.ts'/>
 
 import * as ko from 'knockout';
-import EventResultsViewModel from './EventResultsViewModel';
-
-const vm: EventResultsViewModel = new EventResultsViewModel();
+import RegistrationScreenViewModel from './RegistrationScreenViewModel';
 
 const koRoot = document.getElementById('koroot');
+
+const vm = new RegistrationScreenViewModel();
+
 ko.applyBindings(vm, koRoot);

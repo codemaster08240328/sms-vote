@@ -45,6 +45,11 @@ if (!Array.prototype.find) {
         return undefined;
     };
 }
+if (!String.prototype.contains) {
+    String.prototype.contains = function (str) {
+        return this.indexOf(str) > -1;
+    };
+}
 if (!String.prototype.compareTo) {
     String.prototype.compareTo = function (s, ignoreCase) {
         return String.compareTo(this, s, ignoreCase);
@@ -87,12 +92,6 @@ if (!String.concat) {
             return arguments[0] + arguments[1];
         }
         return Array.prototype.join.call(arguments, '');
-    };
-}
-// MA: Deprecating this in favour of template strings. leaving it here in case we need it back.
-if (!String.format) {
-    String.format = function (format, ...values) {
-        return __format(format, arguments, false);
     };
 }
 function __format(format, values, useLocale) {

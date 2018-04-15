@@ -33,6 +33,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const homeController = require("./controllers/home");
 const userController = require("./controllers/user");
 const contactController = require("./controllers/contact");
+const admninController = require("./controllers/admin");
 const voteController = require("./controllers/vote");
 /**
  * API keys and Passport configuration.
@@ -125,6 +126,7 @@ app.post('/account/profile', passportConfig.isAuthenticated, userController.post
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
+app.get('/event/:eventId/register', passportConfig.isAuthenticated, admninController.getRegistration);
 /**
  * Api routes.
  */
@@ -133,6 +135,8 @@ app.get('/api/vote/:voteId', voteController.getVote);
 app.post('/api/vote/', voteController.saveVote);
 app.delete('/api/vote/:voteId', passportConfig.isAuthenticated, voteController.deleteVote);
 app.post('/api/vote/sms', twilio.webhook(), voteController.voteSMS);
+app.get('/api/event/:eventId/registrations', passportConfig.isAuthenticated);
+app.put('/api/event/:eventId/registration', passportConfig.isAuthenticated);
 /**
  * Error Handler. Provides full stack - remove for production
  */
