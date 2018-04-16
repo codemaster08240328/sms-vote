@@ -20,7 +20,7 @@ export const index = async (req: Request, res: Response, next: NextFunction) => 
         console.log(err);
         return next(err);
     }
-    res.render('voterRegistration', {
+    res.render('register', {
         title: 'Register voters',
         EventName: event.Name
     });

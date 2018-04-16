@@ -25,7 +25,7 @@ exports.index = (req, res, next) => __awaiter(this, void 0, void 0, function* ()
         console.log(err);
         return next(err);
     }
-    res.render('voterRegistration', {
+    res.render('register', {
         title: 'Register voters',
         EventName: event.Name
     });

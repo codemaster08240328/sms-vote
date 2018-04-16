@@ -1,0 +1,33 @@
+extends ./layout
+
+block content
+    .page-header
+        .row
+            .col-sm-6
+                .row
+                    h1 Register for #{EventName}
+                    hr.highlight
+                .row
+                    form.form-horizontal
+                        input(type='hidden', name='_csrf', value=_csrf)
+                        .form-group
+                            label.col-sm-2.control-label(for='firstname') First Name
+                            .col-sm-10
+                                input.form-control(type='text', name='FirstName', id='firstname', placeholder='First Name', autofocus, required, data-bind='value: FirstName')
+                        .form-group
+                            label.col-sm-2.control-label(for='lastname') Last Name
+                            .col-sm-10
+                                input.form-control(type='text', name='LastName', id='lastname', placeholder='Last Name', required, data-bind='value: LastName')
+                        .form-group
+                            label.col-sm-2.control-label(for='email') Email
+                            .col-sm-10
+                                input.form-control(type='email', name='Email', id='email', placeholder='Email', required, data-bind='value: Email')
+                        .form-group
+                            label.col-sm-2.control-label(for='PhoneNumber') Phone Number
+                            .col-sm-10
+                                input.form-control(type='tel', name='PhoneNumber', id='phonenumber', placeholder='Phone Number', required, data-bind='value: PhoneNumber')
+                        .form-group
+                            .col-sm-offset-2.col-sm-7
+                                    button.col-sm-3.btn.btn-primary(type='submit', data-bind='click: Save')
+                                        i.fa.fa-user
+                                        | Submit

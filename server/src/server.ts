@@ -146,7 +146,7 @@ app.post('/account/delete', passportConfig.isAuthenticated, userController.postD
  */
 app.get('/', homeController.index);
 app.get('/event/:eventId/results', resultsController.index);
-app.get('/event/register', passportConfig.isAuthenticated, registrationController.index);
+app.get('/event/:eventId/register', passportConfig.isAuthenticated, registrationController.index);
 
 /**
  * Api routes.
