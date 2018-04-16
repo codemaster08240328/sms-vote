@@ -21,13 +21,16 @@ export let index = (req: Request, res: Response) => {
 
 export const voteSMS = async (request: Request, response: Response, next: NextFunction) => {
     response.header('Content-Type', 'text/xml');
-    const body = request.param('Body').trim();
 
+    console.log(`voteSMS() called at ${new Date().toISOString()}`);
+
+    const body = request.param('Body').trim();
     // the number the vote it being sent to (this should match an Event)
     const to = request.param('To').slice(1);
 
     // the voter, use this to keep people from voting more than once
     const from = request.param('From');
+    console.log(`Vote received - Body: ${body} From: ${from} To: ${to}`);
 
     let events: EventDocument[];
     try {
@@ -58,6 +61,10 @@ export const voteSMS = async (request: Request, response: Response, next: NextFu
     else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.VoteKey).contains(parseInt(body)))) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + event.Contestants.length + ']'));
         response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
+    }
+    else if (!event.CurrentRound) {
+        console.log(`No round is currently selected for event: ${event.Name}`);
+        response.send('<Response><Sms>Voting is now closed.</Sms></Response>');
     }
     else if (event.hasVoted(from)) {
         console.log('Denying vote: ' + event.Name + ', ' + from + ' - Already voted');
