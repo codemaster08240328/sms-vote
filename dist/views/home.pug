@@ -4,13 +4,13 @@ block content
     .page-header
         .row
             .col-sm-6
-                    h1 VOTE!
+                h1 VOTE!
                 hr.highlight
     .clearfix
         if (!user)
             .row
                 .col-sm-6
-                        p Log in to view events and results
+                    p Log in to view events and results
                     p
                         a.btn.btn-default(href='/login', role='button') Log In »
         else
@@ -37,7 +37,7 @@ block content
                             table.table.table-hover
                                 thead
                                     tr
-                                        th Name
+                                        th EventId
                                         th Phone Number
                                         th Live
                                         th Edit
@@ -62,7 +62,7 @@ block content
                         .col-sm-offset-11.col-sm-1
                             button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddNew')
                                 i.glyphicon.glyphicon-plus
-                                |  Add New
+                                |  Add New Event
 
     script#eventedit(type="text/template")
         // ko with: Editor
@@ -89,11 +89,11 @@ block content
                 .panel.panel-primary
                     .row
                         .col-sm-offset-1.col-sm-10
-                                    h3 Artists
+                            h3 Artists
                             table.table
                                 thead
                                     tr
-                                                th Easel
+                                        th Easel
                                         th Name
                                         th
                                         th Sort
@@ -105,7 +105,7 @@ block content
                                             input.input-sm.form-control(type='text', data-bind='value: Name')
                                         td.col-sm-1
                                             button.btn.btn-sm.btn-danger(data-bind='click: () => { $parent.DeleteContestant($data); }')
-                                                        i.glyphicon.glyphicon-remove
+                                                i.glyphicon.glyphicon-remove
                                         td.col-sm-1.drag-handle
                                             .input-sm
                                                 i.glyphicon.glyphicon-menu-hamburger
@@ -113,7 +113,7 @@ block content
                         .col-sm-offset-11.col-sm-1
                             button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddContestant')
                                 i.glyphicon.glyphicon-plus
-                                        |  Add New Artist
+                                |  Add New Artist
                         
             // /ko
         .row
@@ -121,9 +121,6 @@ block content
                 button.btn.btn-default.pull-right(data-bind='click: Cancel') Cancel
                 button.btn.btn-primary.pull-right(data-bind='click: Save') Save
         // /ko
-                                                th EventID
-                                                        i.glyphicon.glyphicon-remove
-                                        |  Add New Event
 
 block append scripts
     if(user)
