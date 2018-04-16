@@ -68,35 +68,54 @@ function Request(url, method, data) {
     });
 }
 
-class VoteSourceViewModel$2 {
+class Contestant {
     constructor(dto) {
         this.Name = ko$1.observable();
-        this.Numbers = ko$1.observableArray();
         this._id = dto._id;
         this.Name(dto.Name);
-        this.Numbers(dto.Numbers);
     }
-    ToDTO(index) {
+    ToDTO() {
         const dto = {
             _id: this._id,
             Name: this.Name(),
-            VoteKey: index + 1,
-            Numbers: this.Numbers()
+            VoteKey: this.VoteKey
         };
         return dto;
     }
+    OrderUpdated(idx) {
+        this.VoteKey = idx + 1;
+    }
 }
 
-class VoteSourceViewModel {
+class Round {
+    constructor(dto, _eventContestants) {
+        this._eventContestants = _eventContestants;
+        this.Contestants = ko.observableArray();
+        this._id = dto._id;
+        this.RoundNumber = dto.RoundNumber;
+        this.Contestants(dto.Contestants.map(c => _eventContestants().find(ec => ec.VoteKey == c.VoteKey)));
+    }
+    ToDTO() {
+        return {
+            _id: this._id,
+            RoundNumber: this.RoundNumber,
+            Contestants: this.Contestants().map(c => c.ToDTO())
+        };
+    }
+}
+
+class VotingEvent {
     constructor(dto) {
         this.Name = ko.observable();
         this.Enabled = ko.observable();
-        this.Choices = ko.observableArray();
+        this.Contestants = ko.observableArray();
+        this.Rounds = ko.observableArray();
         this.PhoneNumber = ko.observable();
+        this.CurrentRound = ko.observable();
         this._id = dto._id;
         this.Name(dto.Name);
         this.Enabled(dto.Enabled);
-        this.Choices(dto.Choices.map(c => new VoteSourceViewModel$2(c)));
+        this.Contestants(dto.Contestants.map(c => new Contestant(c)));
         this.PhoneNumber(dto.PhoneNumber);
     }
     ToDTO() {
@@ -104,21 +123,56 @@ class VoteSourceViewModel {
             _id: this._id,
             Name: this.Name(),
             Enabled: this.Enabled(),
-            Choices: this.Choices().map((c, idx) => c.ToDTO(idx)),
-            PhoneNumber: this.PhoneNumber()
+            Contestants: this.Contestants().map((c) => c.ToDTO()),
+            PhoneNumber: this.PhoneNumber(),
+            Rounds: this.Rounds().map((r) => r.ToDTO()),
+            CurrentRound: this.CurrentRound().ToDTO()
         };
         return dto;
     }
-    AddChoice() {
-        this.Choices.push(new VoteSourceViewModel$2({
+    AddContestant() {
+        this.Contestants.push(new Contestant({
             _id: undefined,
             Name: '',
-            VoteKey: this.Choices().length,
-            Numbers: []
+            VoteKey: this.Contestants().length,
         }));
     }
-    DeleteChoice(choice) {
-        this.Choices.remove(choice);
+    DeleteContestant(contestant) {
+        this.Contestants.remove(contestant);
+        this.Rounds().forEach(r => r.Contestants.remove(contestant));
+    }
+    AddRound() {
+        this.Rounds.push(new Round({
+            _id: null,
+            RoundNumber: this.Rounds().length + 1,
+            Contestants: []
+        }, this.Contestants));
+    }
+    DeleteRound(round) {
+        this.Rounds.remove(round);
+    }
+    SetCurrentRound(round) {
+        this.CurrentRound(round);
+    }
+}
+
+class EventEditor {
+    constructor(dto, _closeCallback) {
+        this._closeCallback = _closeCallback;
+        this.Event = new VotingEvent(dto);
+    }
+    Save() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dto = this.Event.ToDTO();
+            const result = yield Request('api/vote', 'POST', dto);
+            if (result.Success) {
+                dto._id = result.Id;
+                this._closeCallback(dto);
+            }
+        });
+    }
+    Cancel() {
+        this._closeCallback();
     }
 }
 
@@ -186,69 +240,49 @@ class BusyTracker {
     }
 }
 
-class VoteSourceEditorViewModel {
-    constructor(dto, _closeCallback) {
-        this._closeCallback = _closeCallback;
-        this.SavingTracker = new BusyTracker();
-        this.VoteSource = new VoteSourceViewModel(dto);
-    }
-    Save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const dto = this.VoteSource.ToDTO();
-            const result = yield Request('api/vote', 'POST', dto);
-            if (result.Success) {
-                dto._id = result.Id;
-                this._closeCallback(dto);
-            }
-        });
-    }
-    Cancel() {
-        this._closeCallback();
-    }
-}
-
 class HomeScreenViewModel {
     constructor() {
-        this.VoteSources = ko$1.observableArray();
+        this.Events = ko$1.observableArray();
         this.Editor = ko$1.observable();
         this.LoadingTracker = new BusyTracker();
-        this.LoadingTracker.AddOperation(Request('api/vote', 'GET')
+        this.LoadingTracker.AddOperation(Request('api/events', 'GET')
             .then((dtos) => {
-            this.VoteSources(dtos);
+            this.Events(dtos);
         }));
     }
     AddNew() {
-        this.Editor(new VoteSourceEditorViewModel({
+        this.Editor(new EventEditor({
             _id: null,
             Name: '',
             Enabled: false,
-            Choices: [{
+            Contestants: [{
                     _id: undefined,
                     Name: '',
                     VoteKey: 1,
-                    Numbers: []
                 }],
-            PhoneNumber: ''
+            PhoneNumber: '',
+            Rounds: [],
+            CurrentRound: null,
         }, (result) => {
             if (result) {
-                this.VoteSources.push(result);
+                this.Events.push(result);
             }
             this.Editor(null);
         }));
     }
-    Edit(vote) {
-        this.Editor(new VoteSourceEditorViewModel(vote, (result) => {
+    Edit(event) {
+        this.Editor(new EventEditor(event, (result) => {
             if (result) {
-                this.VoteSources.replace(vote, result);
+                this.Events.replace(event, result);
             }
             this.Editor(null);
         }));
     }
-    Delete(vote) {
+    Delete(event) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield Request(`api/vote/${vote._id}`, 'DELETE', null);
+            const result = yield Request(`api/event/${event._id}`, 'DELETE', null);
             if (result.Success) {
-                this.VoteSources.remove(vote);
+                this.Events.remove(event);
             }
         });
     }

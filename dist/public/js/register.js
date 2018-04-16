@@ -1,30 +1,6 @@
 (function (ko$1) {
 'use strict';
 
-class ContestantResults {
-    constructor(dto, Rank) {
-        this.Rank = Rank;
-        this.VoteKey = null;
-        this.Name = null;
-        this.Votes = null;
-        this.VoteKey = dto.VoteKey;
-        this.Name = dto.Name;
-        this.Votes = dto.Votes.length;
-    }
-}
-
-class Round {
-    constructor(dto) {
-        this.RoundNumber = ko.observable();
-        this.Contestants = ko.observableArray();
-        this.RoundNumber(dto.RoundNumber);
-        const contestants = dto.Contestants
-            .sort((a, b) => b.Votes.length - a.Votes.length)
-            .map((c, idx) => new ContestantResults(c, idx + 1));
-        this.Contestants(contestants);
-    }
-}
-
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -156,28 +132,81 @@ class BusyTracker {
     }
 }
 
-class EventResultsViewModel {
-    constructor() {
-        this.Name = ko.observable();
-        this.Rounds = ko.observableArray();
+class RegisteredVoterList {
+    constructor(eventId) {
+        this.RegisteredVoters = ko.observableArray();
+        this.Filter = ko.observable();
         this.LoadingTracker = new BusyTracker();
-        // path is artbattle.com/event/{eventId}/round/{roundId}/results
-        this._eventId = location.pathname.split('/')[1];
-        this.LoadingTracker.AddOperation(Request(`api/event/${this._eventId}`, 'GET')
-            .then((dto) => {
-            this.Name(dto.Name);
-            const rounds = dto.Rounds
-                .sort((a, b) => a.RoundNumber - b.RoundNumber)
-                .map(c => new Round(c));
+        this.LoadingTracker.AddOperation(Request(`api/event/${eventId}/registrations`, 'GET')
+            .then((dtos) => {
+            const registeredVoters = dtos
+                .sort((a, b) => a.LastName.compareTo(b.LastName, true));
+            this.RegisteredVoters(registeredVoters);
         }));
+    }
+    AddRegistration(dto) {
+        this.RegisteredVoters.push(dto);
+    }
+    ConfigureComputed() {
+        this.FilteredRegistrations = ko.computed(() => {
+            return this.RegisteredVoters()
+                .filter(r => {
+                const filter = this.Filter();
+                return r.Email.contains(filter) ||
+                    r.FirstName.contains(filter) ||
+                    r.LastName.contains(filter) ||
+                    r.PhoneNumber.contains(filter);
+            });
+        });
+    }
+}
+
+class RegistrationEditor {
+    constructor(EventId, _submitCallback) {
+        this.EventId = EventId;
+        this._submitCallback = _submitCallback;
+        this.FirstName = ko.observable();
+        this.LastName = ko.observable();
+        this.Email = ko.observable();
+        this.PhoneNumber = ko.observable();
+        this.Saving = ko.observable(false);
+    }
+    ToDTO() {
+        return {
+            _id: this._id,
+            FirstName: this.FirstName(),
+            LastName: this.LastName(),
+            Email: this.Email(),
+            PhoneNumber: this.PhoneNumber()
+        };
+    }
+    Save() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dto = this.ToDTO();
+            const result = yield Request(`api/event/${this.EventId}/register`, 'PUT', dto);
+            if (result.Success) {
+                dto._id = result.Id;
+            }
+        });
+    }
+}
+
+class RegistrationScreenViewModel {
+    constructor() {
+        this.EventId = location.pathname.split('/')[1];
+        this.RegisteredVoters = new RegisteredVoterList(this.EventId);
+        this.RegistrationEditor = new RegistrationEditor(this.EventId, this.OnRegistrationSubmitted);
+    }
+    OnRegistrationSubmitted(dto) {
+        this.RegisteredVoters.AddRegistration(dto);
     }
 }
 
 /// <reference path='../Common/ArrayExtensions.ts'/>
 /// <reference path='../Common/StringExtensions.ts'/>
-const vm = new EventResultsViewModel();
 const koRoot = document.getElementById('koroot');
+const vm = new RegistrationScreenViewModel();
 ko$1.applyBindings(vm, koRoot);
 
 }(ko));
-//# sourceMappingURL=vote.js.map
+//# sourceMappingURL=register.js.map

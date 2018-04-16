@@ -38,7 +38,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 import * as homeController from './controllers/home';
 import * as userController from './controllers/user';
 import * as contactController from './controllers/contact';
-import * as admninController from './controllers/admin';
+import * as registrationController from './controllers/register';
 import * as eventController from './controllers/event';
 
 /**
@@ -141,7 +141,6 @@ app.post('/account/profile', passportConfig.isAuthenticated, userController.post
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
-app.get('/event/:eventId/register', passportConfig.isAuthenticated, admninController.getRegistration);
 
 /**
  * Api routes.

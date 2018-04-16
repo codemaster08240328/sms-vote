@@ -180,4 +180,4 @@ const koRoot = document.getElementById('koroot');
 ko$1.applyBindings(vm, koRoot);
 
 }(ko));
-//# sourceMappingURL=vote.js.map
+//# sourceMappingURL=voteResults.js.map
