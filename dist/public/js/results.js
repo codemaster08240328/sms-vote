@@ -1,6 +1,30 @@
 (function (ko$1) {
 'use strict';
 
+class ContestantResults {
+    constructor(dto, Rank) {
+        this.Rank = Rank;
+        this.VoteKey = null;
+        this.Name = null;
+        this.Votes = null;
+        this.VoteKey = dto.VoteKey;
+        this.Name = dto.Name;
+        this.Votes = dto.Votes.length;
+    }
+}
+
+class Round {
+    constructor(dto) {
+        this.RoundNumber = ko.observable();
+        this.Contestants = ko.observableArray();
+        this.RoundNumber(dto.RoundNumber);
+        const contestants = dto.Contestants
+            .sort((a, b) => b.Votes.length - a.Votes.length)
+            .map((c, idx) => new ContestantResults(c, idx + 1));
+        this.Contestants(contestants);
+    }
+}
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -68,124 +92,6 @@ function Request(url, method, data) {
     });
 }
 
-class Contestant {
-    constructor(dto) {
-        this.Name = ko$1.observable();
-        this._id = dto._id;
-        this.Name(dto.Name);
-    }
-    ToDTO() {
-        const dto = {
-            _id: this._id,
-            Name: this.Name(),
-            VoteKey: this.VoteKey
-        };
-        return dto;
-    }
-    OrderUpdated(idx) {
-        this.VoteKey = idx + 1;
-    }
-}
-
-class Round {
-    constructor(dto, AvailableContestants) {
-        this.AvailableContestants = AvailableContestants;
-        this.Contestants = ko.observableArray();
-        this.Visible = ko.observable(false);
-        this._id = dto._id;
-        this.RoundNumber = dto.RoundNumber;
-        this.Contestants(dto.Contestants.map(c => AvailableContestants().find(ec => ec.VoteKey == c.VoteKey)));
-    }
-    ToggleVisible() {
-        this.Visible(!this.Visible());
-    }
-    ToDTO() {
-        return {
-            _id: this._id,
-            RoundNumber: this.RoundNumber,
-            Contestants: this.Contestants().map(c => c.ToDTO())
-        };
-    }
-}
-
-class VotingEvent {
-    constructor(dto) {
-        this.Name = ko.observable();
-        this.Enabled = ko.observable();
-        this.Contestants = ko.observableArray();
-        this.Rounds = ko.observableArray();
-        this.PhoneNumber = ko.observable();
-        this.CurrentRound = ko.observable();
-        this._id = dto._id;
-        this.Name(dto.Name);
-        this.Enabled(dto.Enabled);
-        this.Contestants(dto.Contestants.map(c => new Contestant(c)));
-        this.PhoneNumber(dto.PhoneNumber);
-        this.DisplayContestants = ko.computed(() => this.Contestants().map(c => c.Name).join(', '));
-    }
-    ToDTO() {
-        const dto = {
-            _id: this._id,
-            Name: this.Name(),
-            Enabled: this.Enabled(),
-            Contestants: this.Contestants().map((c) => c.ToDTO()),
-            PhoneNumber: this.PhoneNumber(),
-            Rounds: this.Rounds().map((r) => r.ToDTO()),
-            CurrentRound: this.CurrentRound() && this.CurrentRound().ToDTO()
-        };
-        return dto;
-    }
-    ContestantOrderUpdated() {
-        this.Contestants().forEach((c, idx) => {
-            c.VoteKey = idx;
-        });
-    }
-    AddContestant() {
-        this.Contestants.push(new Contestant({
-            _id: undefined,
-            Name: '',
-            VoteKey: this.Contestants().length,
-        }));
-    }
-    DeleteContestant(contestant) {
-        this.Contestants.remove(contestant);
-        this.Rounds().forEach(r => r.Contestants.remove(contestant));
-    }
-    AddRound() {
-        this.Rounds.push(new Round({
-            _id: null,
-            RoundNumber: this.Rounds().length + 1,
-            Contestants: []
-        }, this.Contestants));
-    }
-    DeleteRound(round) {
-        this.Rounds.remove(round);
-    }
-    SetCurrentRound(round) {
-        this.CurrentRound(round);
-    }
-}
-
-class EventEditor {
-    constructor(dto, _closeCallback) {
-        this._closeCallback = _closeCallback;
-        this.Event = new VotingEvent(dto);
-    }
-    Save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const dto = this.Event.ToDTO();
-            const result = yield Request('api/vote', 'POST', dto);
-            if (result.Success) {
-                dto._id = result.Id;
-                this._closeCallback(dto);
-            }
-        });
-    }
-    Cancel() {
-        this._closeCallback();
-    }
-}
-
 class BusyTracker {
     constructor() {
         this._tasks = ko.observableArray();
@@ -250,55 +156,28 @@ class BusyTracker {
     }
 }
 
-class HomeScreenViewModel {
+class EventResultsViewModel {
     constructor() {
-        this.Events = ko$1.observableArray();
-        this.Editor = ko$1.observable();
+        this.Name = ko.observable();
+        this.Rounds = ko.observableArray();
         this.LoadingTracker = new BusyTracker();
-        this.LoadingTracker.AddOperation(Request('api/events', 'GET')
-            .then((dtos) => {
-            this.Events(dtos);
+        // path is artbattle.com/event/{eventId}/round/{roundId}/results
+        this._eventId = location.pathname.split('/')[1];
+        this.LoadingTracker.AddOperation(Request(`api/event/${this._eventId}`, 'GET')
+            .then((dto) => {
+            this.Name(dto.Name);
+            const rounds = dto.Rounds
+                .sort((a, b) => a.RoundNumber - b.RoundNumber)
+                .map(c => new Round(c));
         }));
-    }
-    AddNew() {
-        this.Editor(new EventEditor({
-            _id: null,
-            Name: '',
-            Enabled: false,
-            Contestants: [],
-            PhoneNumber: '',
-            Rounds: [],
-            CurrentRound: null,
-        }, (result) => {
-            if (result) {
-                this.Events.push(result);
-            }
-            this.Editor(null);
-        }));
-    }
-    Edit(event) {
-        this.Editor(new EventEditor(event, (result) => {
-            if (result) {
-                this.Events.replace(event, result);
-            }
-            this.Editor(null);
-        }));
-    }
-    Delete(event) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield Request(`api/event/${event._id}`, 'DELETE', null);
-            if (result.Success) {
-                this.Events.remove(event);
-            }
-        });
     }
 }
 
 /// <reference path='../Common/ArrayExtensions.ts'/>
 /// <reference path='../Common/StringExtensions.ts'/>
-const vm = new HomeScreenViewModel();
+const vm = new EventResultsViewModel();
 const koRoot = document.getElementById('koroot');
 ko$1.applyBindings(vm, koRoot);
 
 }(ko));
-//# sourceMappingURL=home.js.map
+//# sourceMappingURL=results.js.map

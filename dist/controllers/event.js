@@ -10,17 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const Event_1 = require("../models/Event");
 const utils = require("../utils");
-/**
- * GET /
- * Vote results
- */
-exports.index = (req, res) => {
-    Event_1.default.findById(req.query.id, (err, voteSource) => {
-        res.render('vote', {
-            title: `Results for ${voteSource.Name}`
-        });
-    });
-};
 exports.voteSMS = (request, response, next) => __awaiter(this, void 0, void 0, function* () {
     response.header('Content-Type', 'text/xml');
     console.log(`voteSMS() called at ${new Date().toISOString()}`);

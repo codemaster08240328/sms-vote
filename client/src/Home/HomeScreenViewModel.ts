@@ -23,11 +23,7 @@ export class HomeScreenViewModel {
             _id: null,
             Name: '',
             Enabled: false,
-            Contestants: [{
-                _id: undefined,
-                Name: '',
-                VoteKey: 1,
-            }],
+            Contestants: [],
             PhoneNumber: '',
             Rounds: [],
             CurrentRound: null,

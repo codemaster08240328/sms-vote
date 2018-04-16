@@ -11,6 +11,7 @@ export class VotingEvent {
     public Rounds: KnockoutObservableArray<Round> = ko.observableArray<Round>();
     public PhoneNumber: KnockoutObservable<string> = ko.observable<string>();
     public CurrentRound: KnockoutObservable<Round> = ko.observable<Round>();
+    public DisplayContestants: KnockoutComputed<string>;
 
     private _id: string;
 
@@ -20,6 +21,8 @@ export class VotingEvent {
         this.Enabled(dto.Enabled);
         this.Contestants(dto.Contestants.map(c => new Contestant(c)));
         this.PhoneNumber(dto.PhoneNumber);
+
+        this.DisplayContestants = ko.computed(() => this.Contestants().map(c => c.Name).join(', '));
     }
 
     public ToDTO(): EventConfigDTO {
@@ -30,9 +33,15 @@ export class VotingEvent {
             Contestants: this.Contestants().map((c) => c.ToDTO()),
             PhoneNumber: this.PhoneNumber(),
             Rounds: this.Rounds().map((r) => r.ToDTO()),
-            CurrentRound: this.CurrentRound().ToDTO()
+            CurrentRound: this.CurrentRound() && this.CurrentRound().ToDTO()
         };
         return dto;
+    }
+
+    public ContestantOrderUpdated(): void {
+        this.Contestants().forEach((c, idx) => {
+            c.VoteKey = idx;
+        });
     }
 
     public AddContestant(): void {

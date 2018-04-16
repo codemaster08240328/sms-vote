@@ -33,7 +33,9 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const homeController = require("./controllers/home");
 const userController = require("./controllers/user");
 const contactController = require("./controllers/contact");
+const registrationController = require("./controllers/register");
 const eventController = require("./controllers/event");
+const resultsController = require("./controllers/results");
 /**
  * API keys and Passport configuration.
  */
@@ -105,10 +107,8 @@ io.on('connection', (socket) => {
     console.log('a user connected');
 });
 /**
- * Primary app routes.
+ * Boilerplate app routes.
  */
-app.get('/', homeController.index);
-app.get('/vote', eventController.index);
 app.get('/login', userController.getLogin);
 app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);
@@ -121,10 +121,16 @@ app.post('/signup', userController.postSignup);
 app.get('/contact', contactController.getContact);
 app.post('/contact', contactController.postContact);
 app.get('/account', passportConfig.isAuthenticated, userController.getAccount);
+app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.post('/account/profile', passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
-app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
+/**
+ * Primary app routes.
+ */
+app.get('/', homeController.index);
+app.get('/event/:eventId/results', resultsController.index);
+app.get('/event/register', passportConfig.isAuthenticated, registrationController.index);
 /**
  * Api routes.
  */

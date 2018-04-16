@@ -1,16 +1,35 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Registration_1 = require("../models/Registration");
+const Event_1 = require("../models/Event");
 /**
  * GET /
  * Event/{eventId}/Register
  */
-exports.register = (req, res, next) => {
+exports.index = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    let event;
+    try {
+        event = yield Event_1.default
+            .findById(req.params.eventId)
+            .exec();
+    }
+    catch (err) {
+        console.log(err);
+        return next(err);
+    }
     res.render('voterRegistration', {
         title: 'Register voters',
-        EventName: 'PLACEHOLDER'
+        EventName: event.Name
     });
-};
+});
 /**
  * GET /
  * api/Event/{eventId}/Registrations

@@ -14,16 +14,16 @@ block content
                     p
                         a.btn.btn-default(href='/login', role='button') Log In »
         else
-            // ko if: Editor
-            
-            // ko template: 'eventedit'
-            // /ko
-
-            // /ko
-
             // ko ifnot: Editor
             
             // ko template: 'eventview'
+            // /ko
+
+            // /ko
+
+            // ko if: Editor
+            
+            // ko template: 'eventedit'
             // /ko
 
             // /ko
@@ -66,8 +66,8 @@ block content
 
     script#eventedit(type="text/template")
         // ko with: Editor
+        // ko with: Event
         .row
-            // ko with: Event
             .col-sm-6
                 .panel.panel-primary
                     .row
@@ -102,7 +102,7 @@ block content
                                         td.col-sm-1
                                             .input-sm.text-success(data-bind="text: $index() + 1")
                                         td.col-sm-7
-                                            input.input-sm.form-control(type='text', data-bind='value: Name')
+                                            input.input-sm.form-control(type='text', data-bind='value: Name', autofocus='true')
                                         td.col-sm-1
                                             button.btn.btn-sm.btn-danger(data-bind='click: () => { $parent.DeleteContestant($data); }')
                                                 i.glyphicon.glyphicon-remove
@@ -114,8 +114,43 @@ block content
                             button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddContestant')
                                 i.glyphicon.glyphicon-plus
                                 |  Add New Artist
-                        
-            // /ko
+
+        hr.highlight
+        .row
+            .col-sm-ofset-1.col-sm-6
+                h3 Rounds
+                table.table
+                    thead
+                        th #
+                        th Artists
+                    tbody
+                        // ko foreach: Rounds
+                        tr
+                            td.col-sm-1
+                                strong(data-bind="text: RoundNumber")
+                            td.col-sm-2
+                                // ko if: AvailableContestants().length > 0
+                                form
+                                    // ko foreach: AvailableContestants
+                                
+                                    .checkbox
+                                        label
+                                            input(type="checkbox", data-bind="checked: $parent.Contestants, checkedValue: $data")
+                                            // ko text: Name
+                                            // /ko
+                                    // /ko
+                                // /ko
+                                
+                                // ko ifnot: AvailableContestants().length > 0
+                                span Enter event contestants above
+                                // /ko
+                        // /ko
+        .row
+            .col-sm-offset-4.col-sm-2
+                button.btn.btn-primary.btn-sm(data-bind='click: AddRound')
+                    i.glyphicon.glyphicon-plus
+                    |  Add New Round
+        // /ko
         .row
             .col-sm-offset-10.col-sm-2
                 button.btn.btn-default.pull-right(data-bind='click: Cancel') Cancel
