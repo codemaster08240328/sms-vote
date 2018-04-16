@@ -4,7 +4,7 @@ block content
     .page-header
         .row
             .col-sm-6
-                h1 Art Battle Vote Administration
+                h1 Results
                 hr.highlight
     .clearfix
         .row
@@ -17,8 +17,8 @@ block content
                                 thead
                                     tr
                                         th Rank
-                                        th Name
-                                        th Contestant #
+                                        th Artist
+                                        th Easel
                                         th Votes
                                 tbody(data-bind="foreach: Candidates")
                                     tr
@@ -30,6 +30,23 @@ block content
                                             .input-sm(type='text', data-bind='text: VoteKey')
                                         td.col-sm-1
                                             .input-sm(type='text', data-bind='text: Votes')
+
+        .row
+            .col-sm-8
+                .panel.panel-primary
+                    .row
+                        .col-sm-offset-1.col-sm-10
+                            h3(data-bind="text: 'List of votes for  ' + Name()")
+                            table.table
+                                thead
+                                    tr
+                                        th PhoneNumbers
+                                tbody(data-bind="foreach: Choices")
+                                    tr
+                                        td.col-sm-1
+                                            .input-sm.text-success(data-bind="text: PhoneNumber")
+
+
         .row
             .col-sm-offset-6.col-sm-2
                 a.btn.btn-default.pull-right(href="/") Back
