@@ -14,22 +14,27 @@ exports.index = (req, res) => {
     });
 };
 exports.voteSMS = (request, response) => {
+    console.log('SMS VOTE: ');
     response.header('Content-Type', 'text/xml');
     const body = request.param('Body').trim();
     // the number the vote it being sent to (this should match an Event)
     const to = request.param('To').slice(1);
     // the voter, use this to keep people from voting more than once
     const from = request.param('From');
+    console.log(body + from + to);
     VoteSource_1.default.find({ PhoneNumber: to })
         .limit(1)
         .exec((err, votes) => {
         const vote = votes[0];
         if (err || votes.length < 1) {
             console.log(err);
+            console.log(votes.length);
             // silently fail for the user
             response.send('<Response></Response>');
         }
         else if (!vote.Enabled) {
+            console.log(err);
+            console.log(votes.Enabled);
             response.send('<Response><Sms>Voting is now closed.</Sms></Response>');
         }
         else if (!utils.testint(body)) {
