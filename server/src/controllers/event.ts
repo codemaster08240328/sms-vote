@@ -7,18 +7,6 @@ import * as utils from '../utils';
 import { OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 import { nextTick } from 'q/index';
 
-/**
- * GET /
- * Vote results
- */
-export let index = (req: Request, res: Response) => {
-    EventModel.findById(req.query.id, (err, voteSource) => {
-        res.render('vote', {
-            title: `Results for ${voteSource.Name}`
-        });
-    });
-};
-
 export const voteSMS = async (request: Request, response: Response, next: NextFunction) => {
     response.header('Content-Type', 'text/xml');
 

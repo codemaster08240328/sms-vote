@@ -3,15 +3,26 @@ import { default as RegistrationModel, RegistrationDocument } from '../models/Re
 import RegistrationDTO from '../../../shared/RegistrationDTO';
 import * as utils from '../utils';
 import { OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
+import { EventDocument } from '../models/Event';
+import EventModel from '../models/Event';
 
 /**
  * GET /
  * Event/{eventId}/Register
  */
-export const register = (req: Request, res: Response, next: NextFunction) => {
+export const index = async (req: Request, res: Response, next: NextFunction) => {
+    let event: EventDocument;
+    try {
+        event = await EventModel
+            .findById(req.params.eventId)
+            .exec();
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
     res.render('voterRegistration', {
         title: 'Register voters',
-        EventName: 'PLACEHOLDER'
+        EventName: event.Name
     });
 };
 

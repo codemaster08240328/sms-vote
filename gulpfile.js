@@ -93,7 +93,7 @@ gulp.task('build-home', async function () {
 });
 
 gulp.task('build-voteResults', async function () {
-    return bundle('client/src/tsconfig.json', './client/src/VoteResults/VoteResults.ts', 'dist/public/js/voteResults.js');
+    return bundle('client/src/tsconfig.json', './client/src/VoteResults/VoteResults.ts', 'dist/public/js/results.js');
 });
 
 gulp.task('build-register', async function () {
