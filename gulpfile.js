@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const rollup = require('rollup');
 const resolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
 const rollupTypescriptPlugin = require('rollup-plugin-typescript2');
 const tsc = require('gulp-typescript');
 const tslint = require('gulp-tslint');
@@ -24,17 +25,22 @@ function compile(tsConfig, dest) {
 
 async function bundle(tsConfig, entry, dest) {
     const rollupBundle = await rollup.rollup({
-        entry: entry,
+        input: entry,
         external: [
             'jquery',
             'knockout'
         ],
-        globals: {
-            jquery: 'jQuery',
-            knockout: 'ko'
-          },
         plugins: [
-            resolve(),
+            resolve({
+                browser: true,
+                jsnext: true,
+                main: true
+            }),
+            commonjs({
+                namedExports: {
+                    'node_modules/bson/browser_build/bson.js': ['ObjectId']
+                }
+            }),
             rollupTypescriptPlugin({
                 tsconfig: tsConfig
             })
@@ -42,14 +48,13 @@ async function bundle(tsConfig, entry, dest) {
     });
 
     await rollupBundle.write({
-        format: 'iife',
-        moduleName: 'home',
-        dest: dest,
         sourceMap: true,
+        file: dest,
+        format: 'iife',
         globals: {
             jquery: 'jQuery',
             knockout: 'ko'
-          }
+        }
     });
 }
 

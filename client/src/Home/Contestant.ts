@@ -1,29 +1,30 @@
 import * as ko from 'knockout';
-import { ContestantConfigDTO } from '../../../shared/ContestantDTO';
+import { EventContestantDTO } from '../../../shared/ContestantDTO';
 import RegistrationDTO from '../../../shared/RegistrationDTO';
 
 export class Contestant {
     public _id: string;
 
     public Name: KnockoutObservable<string> = ko.observable<string>();
-    public VoteKey: number;
+    public ContestantNumber: KnockoutObservable<number> = ko.observable<number>();
 
-    public constructor(dto: ContestantConfigDTO) {
+    public constructor(dto: EventContestantDTO) {
         this._id = dto._id;
         this.Name(dto.Name);
+        this.ContestantNumber(dto.ContestantNumber);
     }
 
-    public ToDTO(): ContestantConfigDTO {
-        const dto: ContestantConfigDTO = {
+    public ToDTO(): EventContestantDTO {
+        const dto: EventContestantDTO = {
             _id: this._id,
             Name: this.Name(),
-            VoteKey: this.VoteKey
+            ContestantNumber: this.ContestantNumber()
         };
         return dto;
     }
 
     public OrderUpdated(idx: number): void {
-        this.VoteKey = idx + 1;
+        this.ContestantNumber(idx + 1);
     }
 }
 

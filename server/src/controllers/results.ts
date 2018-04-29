@@ -8,7 +8,8 @@ import { default as EventModel, EventDocument } from '../models/Event';
 export let index = (req: Request, res: Response) => {
     EventModel.findById(req.params.eventId, (err, event) => {
         res.render('results', {
-            title: `Results for ${event.Name}`
+            title: `Results for ${event.Name}`,
+            EventName: event.Name
         });
     });
 };

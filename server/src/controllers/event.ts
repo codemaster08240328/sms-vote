@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { default as EventModel, EventDocument } from '../models/Event';
 import { RoundConfigDTO } from '../../../shared/RoundDTO';
-import { ContestantConfigDTO } from '../../../shared/ContestantDTO';
+import { RoundContestantDTO, EventContestantDTO } from '../../../shared/ContestantDTO';
 import { EventConfigDTO } from '../../../shared/EventDTO';
 import * as utils from '../utils';
 import { OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
@@ -46,7 +46,7 @@ export const voteSMS = async (request: Request, response: Response, next: NextFu
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
         response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
     }
-    else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.VoteKey).contains(parseInt(body)))) {
+    else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.ContestantNumber).contains(parseInt(body)))) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + event.Contestants.length + ']'));
         response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
     }
@@ -63,7 +63,7 @@ export const voteSMS = async (request: Request, response: Response, next: NextFu
         const registration = event.Registrations.find(r => r.PhoneNumber == from);
 
         event.CurrentRound.Contestants
-            .find(c => c.VoteKey === choice)
+            .find(c => c.ContestantNumber === choice)
             .Votes.push(registration);
 
         event.save((err) => {
@@ -128,7 +128,7 @@ export const getEvents = (req: Request, res: Response, next: NextFunction) => {
             return next(err);
         }
         events = events.map(v => {
-            v.Contestants = v.Contestants.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
+            v.Contestants = v.Contestants.sort((c1, c2) => c1.ContestantNumber - c2.ContestantNumber);
             return v;
         });
         res.json(events);
@@ -138,11 +138,11 @@ export const getEvents = (req: Request, res: Response, next: NextFunction) => {
 export const getEvent = async (req: Request, res: Response, next: NextFunction) => {
     let event: EventDocument;
     try {
-        event = await EventModel.findById(req.params.voteId);
+        event = await EventModel.findById(req.params.eventId);
     }
     catch (err) {
         return next(err);
     }
-    event.Contestants = event.Contestants.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
+    event.Contestants = event.Contestants.sort((c1, c2) => c1.ContestantNumber - c2.ContestantNumber);
     res.json(event);
 };

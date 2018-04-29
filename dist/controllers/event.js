@@ -44,7 +44,7 @@ exports.voteSMS = (request, response, next) => __awaiter(this, void 0, void 0, f
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
         response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
     }
-    else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.VoteKey).contains(parseInt(body)))) {
+    else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.ContestantNumber).contains(parseInt(body)))) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + event.Contestants.length + ']'));
         response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
     }
@@ -60,7 +60,7 @@ exports.voteSMS = (request, response, next) => __awaiter(this, void 0, void 0, f
         const choice = parseInt(body);
         const registration = event.Registrations.find(r => r.PhoneNumber == from);
         event.CurrentRound.Contestants
-            .find(c => c.VoteKey === choice)
+            .find(c => c.ContestantNumber === choice)
             .Votes.push(registration);
         event.save((err) => {
             if (err) {
@@ -121,7 +121,7 @@ exports.getEvents = (req, res, next) => {
             return next(err);
         }
         events = events.map(v => {
-            v.Contestants = v.Contestants.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
+            v.Contestants = v.Contestants.sort((c1, c2) => c1.ContestantNumber - c2.ContestantNumber);
             return v;
         });
         res.json(events);
@@ -130,12 +130,12 @@ exports.getEvents = (req, res, next) => {
 exports.getEvent = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let event;
     try {
-        event = yield Event_1.default.findById(req.params.voteId);
+        event = yield Event_1.default.findById(req.params.eventId);
     }
     catch (err) {
         return next(err);
     }
-    event.Contestants = event.Contestants.sort((c1, c2) => c1.VoteKey - c2.VoteKey);
+    event.Contestants = event.Contestants.sort((c1, c2) => c1.ContestantNumber - c2.ContestantNumber);
     res.json(event);
 });
 

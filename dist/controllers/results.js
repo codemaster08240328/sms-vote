@@ -8,7 +8,8 @@ const Event_1 = require("../models/Event");
 exports.index = (req, res) => {
     Event_1.default.findById(req.params.eventId, (err, event) => {
         res.render('results', {
-            title: `Results for ${event.Name}`
+            title: `Results for ${event.Name}`,
+            EventName: event.Name
         });
     });
 };

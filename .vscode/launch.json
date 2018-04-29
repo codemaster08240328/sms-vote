@@ -8,6 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Server",
+            "sourceMaps": true,
             "program": "${workspaceFolder}/dist/server.js"
         },
         {

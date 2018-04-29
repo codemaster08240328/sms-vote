@@ -153,10 +153,8 @@ app.get('/event/:eventId/register', passportConfig.isAuthenticated, registration
  */
 app.get('/api/events', passportConfig.isAuthenticated, eventController.getEvents);
 app.get('/api/event/:eventId', eventController.getEvent);
-app.post('/api/event/', eventController.saveEvent);
+app.post('/api/event/', passportConfig.isAuthenticated, eventController.saveEvent);
 app.delete('/api/event/:eventId', passportConfig.isAuthenticated, eventController.deleteEvent);
-app.get('/api/event/:eventId/registrations', passportConfig.isAuthenticated);
-app.put('/api/event/:eventId/registration', passportConfig.isAuthenticated);
 
 app.post('/api/vote/sms', twilio.webhook(), eventController.voteSMS);
 

@@ -1,7 +1,8 @@
-import { ContestantConfigDTO } from '../../../shared/ContestantDTO';
+import { ContestantDTO } from '../../../shared/ContestantDTO';
 import { EventConfigDTO } from '../../../shared/EventDTO';
 import Contestant from './Contestant';
 import Round from './Round';
+import { ObjectId } from 'bson';
 
 export class VotingEvent {
 
@@ -20,6 +21,7 @@ export class VotingEvent {
         this.Name(dto.Name);
         this.Enabled(dto.Enabled);
         this.Contestants(dto.Contestants.map(c => new Contestant(c)));
+        this.Rounds(dto.Rounds.map(r => new Round(r, this.Contestants)));
         this.PhoneNumber(dto.PhoneNumber);
 
         this.DisplayContestants = ko.computed(() => this.Contestants().map(c => c.Name).join(', '));
@@ -40,21 +42,24 @@ export class VotingEvent {
 
     public ContestantOrderUpdated(): void {
         this.Contestants().forEach((c, idx) => {
-            c.VoteKey = idx;
+            c.ContestantNumber(idx);
+        });
+
+        this.Rounds().forEach((r) => {
+
         });
     }
 
     public AddContestant(): void {
         this.Contestants.push(new Contestant({
-            _id: undefined,
+            _id: new ObjectId().toHexString(),
             Name: '',
-            VoteKey: this.Contestants().length,
+            ContestantNumber: this.Contestants().length,
         }));
     }
 
     public DeleteContestant(contestant: Contestant): void {
         this.Contestants.remove(contestant);
-        this.Rounds().forEach(r => r.Contestants.remove(contestant));
     }
 
     public AddRound(): void {

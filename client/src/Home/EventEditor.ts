@@ -13,7 +13,7 @@ export class EventEditor {
 
     public async Save() {
         const dto = this.Event.ToDTO();
-        const result = await Request<CreateOperationResult>('api/vote', 'POST', dto);
+        const result = await Request<CreateOperationResult>('api/event', 'POST', dto);
         if (result.Success) {
             dto._id = result.Id;
             this._closeCallback(dto);

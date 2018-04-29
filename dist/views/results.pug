@@ -4,15 +4,16 @@ block content
     .page-header
         .row
             .col-sm-6
-                h1 Results
+                h1 Results for #{EventName}
                 hr.highlight
     .clearfix
         .row
             .col-sm-8
                 .panel.panel-primary
+                    // ko foreach: Rounds
                     .row
                         .col-sm-offset-1.col-sm-10
-                            h3(data-bind="text: 'Voting results for ' + Name()")
+                            h3(data-bind="text: 'Voting results for Round ' + RoundNumber()")
                             table.table
                                 thead
                                     tr
@@ -20,32 +21,17 @@ block content
                                         th Artist
                                         th Easel
                                         th Votes
-                                tbody(data-bind="foreach: Candidates")
+                                tbody(data-bind="foreach: Contestants")
                                     tr
                                         td.col-sm-1
                                             .input-sm.text-success(data-bind="text: Rank")
                                         td.col-sm-6
                                             .input-sm(type='text', data-bind='text: Name')
                                         td.col-sm-2
-                                            .input-sm(type='text', data-bind='text: VoteKey')
+                                            .input-sm(type='text', data-bind='text: ContestantNumber')
                                         td.col-sm-1
                                             .input-sm(type='text', data-bind='text: Votes')
-
-        .row
-            .col-sm-8
-                .panel.panel-primary
-                    .row
-                        .col-sm-offset-1.col-sm-10
-                            h3(data-bind="text: 'List of votes for  ' + Name()")
-                            table.table
-                                thead
-                                    tr
-                                        th PhoneNumbers
-                                tbody(data-bind="foreach: Choices")
-                                    tr
-                                        td.col-sm-1
-                                            .input-sm.text-success(data-bind="text: PhoneNumber")
-
+                    // /ko
 
         .row
             .col-sm-offset-6.col-sm-2

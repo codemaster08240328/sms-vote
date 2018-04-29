@@ -1,10 +1,10 @@
-import ContestantDTO from '../../../shared/ContestantDTO';
+import RoundContestantDTO from '../../../shared/ContestantDTO';
 import {RoundConfigDTO} from '../../../shared/RoundDTO';
 import { Contestant } from './Contestant';
 
 export class Round {
     public RoundNumber: number;
-    public Contestants: KnockoutObservableArray<Contestant> = ko.observableArray<Contestant>();
+    public Contestants: KnockoutObservableArray<Contestant> = ko.observableArray();
 
     public Visible: KnockoutObservable<boolean> = ko.observable<boolean>(false);
 
@@ -14,7 +14,11 @@ export class Round {
             public AvailableContestants: KnockoutObservableArray<Contestant>) {
         this._id = dto._id;
         this.RoundNumber = dto.RoundNumber;
-        this.Contestants(dto.Contestants.map(c => AvailableContestants().find(ec => ec.VoteKey == c.VoteKey)));
+        this.Contestants(
+            dto.Contestants
+                .map(c => AvailableContestants().find(ec => ec._id == c._id))
+                .filter(c => c != null)
+        );
     }
 
     public ToggleVisible() {

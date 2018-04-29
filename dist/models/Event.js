@@ -2,22 +2,27 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
 const Registration_1 = require("./Registration");
-const ContestantSchema = new mongoose.Schema({
+const EventContestantSchema = new mongoose.Schema({
     Name: String,
-    VoteKey: Number,
+    ContestantNumber: Number,
+});
+const RoundContestantSchema = new mongoose.Schema({
+    Name: String,
+    ContestantNumber: Number,
     Votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration', unique: true }]
 });
 const RoundSchema = new mongoose.Schema({
     RoundNumber: Number,
-    Contestants: [ContestantSchema]
+    Contestants: [RoundContestantSchema]
 });
 const EventSchema = new mongoose.Schema({
     Name: { type: String, unique: true },
-    Contestants: [ContestantSchema],
+    Contestants: [EventContestantSchema],
     Rounds: [RoundSchema],
     PhoneNumber: String,
     Registrations: [Registration_1.RegistrationSchema],
-    CurrentRound: RoundSchema
+    CurrentRound: RoundSchema,
+    Enabled: Boolean
 });
 EventSchema.methods.hasVoted = function (phoneNumber) {
     return this.CurrentRound.Contestants

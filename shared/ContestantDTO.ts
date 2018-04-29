@@ -1,13 +1,16 @@
 import RegistrationDTO from './RegistrationDTO';
 
-export declare interface ContestantConfigDTO {
-    _id: string;
+export declare interface ContestantDTO {
+    _id: any;
     Name: string;
-    VoteKey: number;
 }
 
-export declare interface ContestantDTO extends ContestantConfigDTO {
+export declare interface EventContestantDTO extends ContestantDTO {
+    ContestantNumber: number;
+}
+
+export declare interface RoundContestantDTO extends EventContestantDTO {
     Votes: RegistrationDTO[];
 }
 
-export default ContestantDTO;
+export default RoundContestantDTO;

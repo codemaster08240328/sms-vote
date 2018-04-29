@@ -36,7 +36,8 @@ export class HomeScreenViewModel {
         }));
     }
 
-    public Edit(event: EventConfigDTO) {
+    public async Edit(eventId: string) {
+        const event = await this.LoadingTracker.AddOperation(Request<EventConfigDTO>(`api/event/${eventId}`, 'GET'));
         this.Editor(new EventEditor(event, (result) => {
             if (result) {
                 this.Events.replace(event, result);
@@ -46,7 +47,7 @@ export class HomeScreenViewModel {
     }
 
     public async Delete(event: EventConfigDTO) {
-        const result = await Request<OperationResult>(`api/event/${event._id}`, 'DELETE', null);
+        const result = await Request<OperationResult>(`api/event/${event._id}`, 'DELETE');
         if (result.Success) {
             this.Events.remove(event);
         }
