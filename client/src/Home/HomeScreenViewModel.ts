@@ -28,7 +28,7 @@ export class HomeScreenViewModel {
         },
         (result) => {
             if (result) {
-                this.Events.push(new EventSummary(result));
+                this.LoadEvents();
             }
             this.Editor(null);
         }));

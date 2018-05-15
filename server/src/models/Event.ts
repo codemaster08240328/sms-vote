@@ -39,9 +39,9 @@ const EventSchema: mongoose.Schema = new mongoose.Schema({
 });
 
 EventSchema.methods.hasVoted = function(phoneNumber: string): boolean {
-    return (<EventDocument>this).CurrentRound.Contestants
-        .reduce((prev: string[], cur: RoundContestantDTO) => prev.concat(cur.Votes.map(v => v.PhoneNumber)), [])
-        .find(n => n === phoneNumber) ? true : false;
+        const thisEvent = (<EventDocument>this);
+        return thisEvent.CurrentRound.Contestants.reduce((prev: string[], cur: RoundContestantDTO) => prev.concat(cur.Votes.map(v => v.PhoneNumber)), [])
+            .find(n => n === phoneNumber) ? true : false;
     };
 
 const EventModel = mongoose.model<EventDocument>('Event', EventSchema);

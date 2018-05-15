@@ -56,14 +56,15 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
     const to = req.param('To').slice(1);
 
     // the voter, use this to keep people from voting more than once
-    const from = req.param('From');
+    const from = req.param('From').replace(/\D/g, '');
     console.log(`Vote received - Body: ${body} From: ${from} To: ${to}`);
 
     let events: EventDocument[];
     try {
         events = await EventModel
-            .find( { PhoneNumber: to } )
-            .limit(1)
+            .find(( { PhoneNumber: to } ))
+            .populate('Registrations')
+            .populate('CurrentRound.Contestants.Votes')
             .exec();
     } catch (err) {
         console.log(err);
@@ -73,29 +74,47 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
 
     const event = events[0];
 
-    if (events.length < 1) {
+    if (!event) {
         console.log(`No event is configured at this number: ${to}`);
-        // silently fail for the user
         res.send('<Response><Sms>Sorry! No event is currently running at this number. Please check the number and try again.</Sms></Response>');
+        return;
     }
     else if (!event.Enabled) {
         res.send('<Response><Sms>Voting is now closed.</Sms></Response>');
+        return;
     }
     else if (!utils.testint(body)) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
         res.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
+        return;
     }
     else if (!event.CurrentRound) {
         console.log(`No round is currently selected for event: ${event.Name}`);
-        res.send('<Response><Sms>Voting is now closed.</Sms></Response>');
+        res.send('<Response><Sms>Voting is currently closed.</Sms></Response>');
+        return;
     }
-    else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.ContestantNumber).contains(parseInt(body)))) {
-        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + event.Contestants.length + ']'));
-        res.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.CurrentRound.Contestants.length + '</Sms></Response>');
+
+    const availableOptions = event.CurrentRound.Contestants.map(c => c.ContestantNumber);
+    const availableOptionsString = availableOptions.join(', ');
+    const vote = parseInt(body);
+    if (!availableOptions.contains(vote) ) {
+        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', Available Options: ' + availableOptionsString);
+        res.send(`<Response><Sms>Sorry, invalid vote. Please choose one of the following options: ${availableOptionsString} </Sms></Response>`);
+        return;
     }
-    else if (event.hasVoted(from)) {
+
+    const voterRegistration = event.Registrations.find(r => r.PhoneNumber == from);
+
+    if (!voterRegistration) {
+        console.log('Phone number is not registered to vote in this event');
+        res.send(`<Response><Sms>Sorry, this number is not registered for this event.</Sms></Response>`);
+        return;
+    }
+
+    if (event.hasVoted(from)) {
         console.log('Denying vote: ' + event.Name + ', ' + from + ' - Already voted');
         res.send('<Response><Sms>Sorry, you are only allowed to vote once per round.</Sms></Response>');
+        return;
     }
     else {
         const choice = parseInt(body);
@@ -111,7 +130,7 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
             }
             else {
                 console.log('Accepting vote: ' + votedFor.Name + ', ' + from);
-                res.send('<Response><Sms>Thanks for your vote for ' + votedFor.Name + '. Powered by Twilio.</Sms></Response>');
+                res.send('<Response><Sms>Thanks for your vote for ' + votedFor.Name + '.</Sms></Response>');
             }
         });
     }

@@ -46,7 +46,7 @@ export class EventEditor {
 
     public ContestantOrderUpdated(): void {
         this.Contestants().forEach((c, idx) => {
-            c.ContestantNumber(idx);
+            c.ContestantNumber(idx + 1);
         });
 
         this.Rounds().forEach((r) => {
@@ -58,7 +58,7 @@ export class EventEditor {
         this.Contestants.push(new Contestant({
             _id: new ObjectId().toHexString(),
             Name: '',
-            ContestantNumber: this.Contestants().length,
+            ContestantNumber: this.Contestants().length + 1,
         }));
     }
 

@@ -16400,7 +16400,7 @@
         }
         ContestantOrderUpdated() {
             this.Contestants().forEach((c, idx) => {
-                c.ContestantNumber(idx);
+                c.ContestantNumber(idx + 1);
             });
             this.Rounds().forEach((r) => {
             });
@@ -16409,7 +16409,7 @@
             this.Contestants.push(new Contestant({
                 _id: new bson_1().toHexString(),
                 Name: '',
-                ContestantNumber: this.Contestants().length,
+                ContestantNumber: this.Contestants().length + 1,
             }));
         }
         DeleteContestant(contestant) {
@@ -16576,7 +16576,7 @@
                 CurrentRound: null,
             }, (result) => {
                 if (result) {
-                    this.Events.push(new EventSummary(result));
+                    this.LoadEvents();
                 }
                 this.Editor(null);
             }));
