@@ -6,18 +6,53 @@ import { EventConfigDTO, EventDTO } from '../../../shared/EventDTO';
 import * as utils from '../utils';
 import { DataOperationResult, OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 import { nextTick } from 'q/index';
+import * as Twilio from 'twilio';
 
-export const voteSMS = async (request: Request, response: Response, next: NextFunction) => {
-    response.header('Content-Type', 'text/xml');
+export let getAnnounce = (req: Request, res: Response) => {
+    res.render('announce', {
+      title: 'Announcement'
+    });
+  };
+
+export const announce = async (req: Request, res: Response, next: NextFunction) => {
+    console.log(`announce() called at ${new Date().toISOString()}`);
+
+    const message = req.param('Message').trim();
+    try {
+        const event = await EventModel.findById(req.params.eventId);
+
+        const twilioClient = Twilio();
+
+        event.Registrations.forEach(registrant => {
+            console.log(`Sending message: ${message} From: ${event.PhoneNumber} To: ${registrant.FirstName} ${registrant.LastName} - ${registrant.PhoneNumber}`);
+            twilioClient.messages.create({
+                from: event.PhoneNumber,
+                to: registrant.PhoneNumber,
+                body: message
+            });
+        });
+
+        req.flash('success', { msg: 'Success! Message sent to all participants!' });
+        res.redirect('/');
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+
+};
+
+
+export const voteSMS = async (req: Request, res: Response, next: NextFunction) => {
+    res.header('Content-Type', 'text/xml');
 
     console.log(`voteSMS() called at ${new Date().toISOString()}`);
 
-    const body = request.param('Body').trim();
+    const body = req.param('Body').trim();
     // the number the vote it being sent to (this should match an Event)
-    const to = request.param('To').slice(1);
+    const to = req.param('To').slice(1);
 
     // the voter, use this to keep people from voting more than once
-    const from = request.param('From');
+    const from = req.param('From');
     console.log(`Vote received - Body: ${body} From: ${from} To: ${to}`);
 
     let events: EventDocument[];
@@ -28,7 +63,7 @@ export const voteSMS = async (request: Request, response: Response, next: NextFu
             .exec();
     } catch (err) {
         console.log(err);
-        response.send('<Response>Sorry! Our system encountered an error. Please try again.</Response>');
+        res.send('<Response>Sorry! Our system encountered an error. Please try again.</Response>');
         return next(err);
     }
 
@@ -37,42 +72,42 @@ export const voteSMS = async (request: Request, response: Response, next: NextFu
     if (events.length < 1) {
         console.log(`No event is configured at this number: ${to}`);
         // silently fail for the user
-        response.send('<Response><Sms>Sorry! No event is currently running at this number. Please check the number and try again.</Sms></Response>');
+        res.send('<Response><Sms>Sorry! No event is currently running at this number. Please check the number and try again.</Sms></Response>');
     }
     else if (!event.Enabled) {
-        response.send('<Response><Sms>Voting is now closed.</Sms></Response>');
+        res.send('<Response><Sms>Voting is now closed.</Sms></Response>');
     }
     else if (!utils.testint(body)) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
-        response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
+        res.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
     }
     else if (!event.CurrentRound) {
         console.log(`No round is currently selected for event: ${event.Name}`);
-        response.send('<Response><Sms>Voting is now closed.</Sms></Response>');
+        res.send('<Response><Sms>Voting is now closed.</Sms></Response>');
     }
     else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.ContestantNumber).contains(parseInt(body)))) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + event.Contestants.length + ']'));
-        response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
+        res.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.CurrentRound.Contestants.length + '</Sms></Response>');
     }
     else if (event.hasVoted(from)) {
         console.log('Denying vote: ' + event.Name + ', ' + from + ' - Already voted');
-        response.send('<Response><Sms>Sorry, you are only allowed to vote once per round.</Sms></Response>');
+        res.send('<Response><Sms>Sorry, you are only allowed to vote once per round.</Sms></Response>');
     }
     else {
         const choice = parseInt(body);
         const registration = event.Registrations.find(r => r.PhoneNumber == from);
 
-        event.CurrentRound.Contestants
-            .find(c => c.ContestantNumber === choice)
-            .Votes.push(registration);
+        const votedFor = event.CurrentRound.Contestants
+            .find(c => c.ContestantNumber === choice);
+        votedFor.Votes.push(registration);
 
         event.save((err) => {
             if (err) {
-                response.send('<Response><Sms>We encountered an error saving your vote. Try again?</Sms></Response>');
+                res.send('<Response><Sms>We encountered an error saving your vote. Try again?</Sms></Response>');
             }
             else {
-                console.log('Accepting vote: ' + event.Name + ', ' + from);
-                response.send('<Response><Sms>Thanks for your vote for ' + event.Name + '. Powered by Twilio.</Sms></Response>');
+                console.log('Accepting vote: ' + votedFor.Name + ', ' + from);
+                res.send('<Response><Sms>Thanks for your vote for ' + votedFor.Name + '. Powered by Twilio.</Sms></Response>');
             }
         });
     }

@@ -30,7 +30,7 @@ block content
 
     script#eventview(type="text/template")
         .row
-            .col-sm-8
+            .col-sm-10
                 .panel.panel-primary
                     .row
                         .col-sm-offset-1.col-sm-10
@@ -40,7 +40,9 @@ block content
                                         th EventId
                                         th Phone Number
                                         th Live
-                                        th Current Round
+                                        th 
+                                        th
+                                        th Round
                                         th Edit
                                         th Delete
                                 tbody
@@ -52,6 +54,12 @@ block content
                                         td(data-bind='text: PhoneNumber')
                                         td
                                             input(type='checkbox', data-bind='enable: false, checked: Enabled')
+                                        td
+                                            a(data-bind="attr: { href: '/event/' + _id + '/register' }")
+                                                span Register Voters
+                                        td
+                                            a(data-bind="attr: { href: '/event/' + _id + '/announce' }")
+                                                span Announce
                                         td
                                             button.btn.btn-default.btn-xs.ladda-button(type="button" data-style="zoom-in" data-size="xs" 
                                                 data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy")

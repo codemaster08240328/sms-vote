@@ -147,6 +147,8 @@ app.post('/account/delete', passportConfig.isAuthenticated, userController.postD
 app.get('/', homeController.index);
 app.get('/event/:eventId/results', resultsController.index);
 app.get('/event/:eventId/register', passportConfig.isAuthenticated, registrationController.index);
+app.get('/event/:eventId/announce', passportConfig.isAuthenticated, eventController.getAnnounce);
+app.post('/event/:eventId/announce', passportConfig.isAuthenticated, eventController.announce);
 
 /**
  * Api routes.
@@ -158,6 +160,7 @@ app.delete('/api/event/:eventId', passportConfig.isAuthenticated, eventControlle
 app.post('/api/event/:eventId/incrementround', passportConfig.isAuthenticated, eventController.incrementRound);
 
 app.post('/api/vote/sms', eventController.voteSMS);
+
 
 /**
  * Error Handler. Provides full stack - remove for production
