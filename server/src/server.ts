@@ -158,8 +158,10 @@ app.get('/api/event/:eventId', eventController.getEvent);
 app.post('/api/event/', passportConfig.isAuthenticated, eventController.saveEvent);
 app.delete('/api/event/:eventId', passportConfig.isAuthenticated, eventController.deleteEvent);
 app.post('/api/event/:eventId/incrementround', passportConfig.isAuthenticated, eventController.incrementRound);
-
 app.post('/api/vote/sms', eventController.voteSMS);
+app.get('/api/event/:eventId/registrations', passportConfig.isAuthenticated, registrationController.getRegistrations);
+app.put('/api/event/:eventId/register', passportConfig.isAuthenticated, registrationController.registerVoter);
+
 
 
 /**

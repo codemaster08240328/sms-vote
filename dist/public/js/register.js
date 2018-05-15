@@ -118,42 +118,67 @@
     }
 
     class RegisteredVoterList {
-        constructor(eventId) {
-            this.RegisteredVoters = ko.observableArray();
+        constructor(eventId, _voterSelectedCallback) {
+            this._voterSelectedCallback = _voterSelectedCallback;
+            this.Voters = ko.observableArray();
             this.Filter = ko.observable();
             this.LoadingTracker = new BusyTracker();
-            this.LoadingTracker.AddOperation(Request(`api/event/${eventId}/registrations`, 'GET')
+            this.LoadingTracker.AddOperation(Request(`/api/event/${eventId}/registrations`, 'GET')
                 .then((dtos) => {
                 const registeredVoters = dtos
                     .sort((a, b) => a.LastName.compareTo(b.LastName, true));
-                this.RegisteredVoters(registeredVoters);
+                this.Voters(registeredVoters);
             }));
+            this.ConfigureComputed();
         }
-        AddRegistration(dto) {
-            this.RegisteredVoters.push(dto);
+        UpdateRegistration(dto) {
+            const registrations = this.Voters();
+            const eventRegistration = registrations.find(r => r.PhoneNumber == dto.PhoneNumber);
+            if (eventRegistration) {
+                registrations.splice(registrations.indexOf(eventRegistration), 1, dto);
+                this.Voters(registrations);
+            }
+            else {
+                this.Voters.push(dto);
+            }
+        }
+        Selected(dto) {
+            this._voterSelectedCallback(dto);
         }
         ConfigureComputed() {
             this.FilteredRegistrations = ko.computed(() => {
-                return this.RegisteredVoters()
-                    .filter(r => {
-                    const filter = this.Filter();
-                    return r.Email.contains(filter) ||
-                        r.FirstName.contains(filter) ||
-                        r.LastName.contains(filter) ||
-                        r.PhoneNumber.contains(filter);
-                });
+                if (this.Filter()) {
+                    const filter = this.Filter().toLocaleLowerCase();
+                    const filteredVoters = this.Voters()
+                        .filter(r => {
+                        return r.Email.toLocaleLowerCase().contains(filter) ||
+                            r.FirstName.toLocaleLowerCase().contains(filter) ||
+                            r.LastName.toLocaleLowerCase().contains(filter) ||
+                            r.PhoneNumber.toLocaleLowerCase().contains(filter);
+                    });
+                    return filteredVoters;
+                }
+                else {
+                    return this.Voters();
+                }
             });
         }
     }
 
+    function IsPhoneNumber(str) {
+        return /1\d{10}/.test(str);
+    }
+
     class RegistrationEditor {
-        constructor(EventId, _submitCallback) {
+        constructor(EventId, _submitCallback, _resetCallback) {
             this.EventId = EventId;
             this._submitCallback = _submitCallback;
+            this._resetCallback = _resetCallback;
             this.FirstName = ko.observable();
             this.LastName = ko.observable();
             this.Email = ko.observable();
             this.PhoneNumber = ko.observable();
+            this.IsPhoneNumberValid = ko.observable(true);
             this.Saving = ko.observable(false);
         }
         ToDTO() {
@@ -165,25 +190,54 @@
                 PhoneNumber: this.PhoneNumber()
             };
         }
+        Load(dto) {
+            this.FirstName(dto.FirstName);
+            this.LastName(dto.LastName);
+            this.Email(dto.Email);
+            this.PhoneNumber(dto.PhoneNumber);
+        }
         Save() {
             return __awaiter(this, void 0, void 0, function* () {
                 const dto = this.ToDTO();
-                const result = yield Request(`api/event/${this.EventId}/register`, 'PUT', dto);
-                if (result.Success) {
-                    dto._id = result.Id;
+                if (this.CheckValid()) {
+                    const result = yield Request(`/api/event/${this.EventId}/register`, 'PUT', dto);
+                    if (result.Success) {
+                        this._id = result.Data._id;
+                        this._submitCallback(result.Data);
+                    }
                 }
             });
+        }
+        Reset() {
+            this._resetCallback();
+        }
+        CheckValid() {
+            if (IsPhoneNumber(this.PhoneNumber())) {
+                return true;
+            }
+            else {
+                this.IsPhoneNumberValid(false);
+            }
         }
     }
 
     class RegistrationScreenViewModel {
         constructor() {
-            this.EventId = location.pathname.split('/')[1];
-            this.RegisteredVoters = new RegisteredVoterList(this.EventId);
-            this.RegistrationEditor = new RegistrationEditor(this.EventId, this.OnRegistrationSubmitted);
+            this.EventId = location.pathname.split('/')[2];
+            this.RegistrationEditor = ko$1.observable();
+            this.RegisteredVoters = new RegisteredVoterList(this.EventId, this.OnVoterSelected.bind(this));
+            this.ResetEditor();
         }
         OnRegistrationSubmitted(dto) {
-            this.RegisteredVoters.AddRegistration(dto);
+            this.RegisteredVoters.UpdateRegistration(dto);
+            this.ResetEditor();
+        }
+        OnVoterSelected(dto) {
+            this.ResetEditor();
+            this.RegistrationEditor().Load(dto);
+        }
+        ResetEditor() {
+            this.RegistrationEditor(new RegistrationEditor(this.EventId, this.OnRegistrationSubmitted.bind(this), this.ResetEditor.bind(this)));
         }
     }
 

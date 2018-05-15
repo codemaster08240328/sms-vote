@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { default as RegistrationModel, RegistrationDocument } from '../models/Registration';
 import RegistrationDTO from '../../../shared/RegistrationDTO';
 import * as utils from '../utils';
-import { OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
+import { DataOperationResult, OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 import { EventDocument } from '../models/Event';
 import EventModel from '../models/Event';
+import * as mongoose from 'mongoose';
+import { IsPhoneNumber } from '../utils';
 
 /**
  * GET /
@@ -30,31 +32,62 @@ export const index = async (req: Request, res: Response, next: NextFunction) => 
  * GET /
  * api/Event/{eventId}/Registrations
  */
-export const getRegistrations = (req: Request, res: Response, next: NextFunction) => {
-    RegistrationModel.find((err, registrations: RegistrationDocument[]) => {
-        if (err) {
-            return next(err);
-        }
-        res.json(registrations);
-    });
+export const getRegistrations = async (req: Request, res: Response, next: NextFunction) => {
+    console.log('getRegistrations()...');
+    try {
+        const event = await EventModel.findById(req.params.eventId).populate('Registrations').exec();
+        res.json(event.Registrations);
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
 };
 
 /**
  * PUT /
  * api/Event/{eventId}/Registration
  */
-export const registerVoter = (req: Request, res: Response, next: NextFunction) => {
+export const registerVoter = async (req: Request, res: Response, next: NextFunction) => {
     const dto: RegistrationDTO = req.body;
-
-    const Registration = new RegistrationModel(dto);
-    Registration.save((err: any, product: RegistrationDocument) => {
-        if (err) {
-            return next(err);
+    console.log(`Registering ${dto.FirstName} ${dto.LastName} - ${dto.PhoneNumber}`);
+    try {
+        if (!dto.PhoneNumber) {
+            const error = 'Invalid registration record. No PhoneNumber provided.';
+            console.error(error);
+            throw error;
+        }
+        if (!IsPhoneNumber(dto.PhoneNumber)) {
+            const error = `Invalid registration record. Phone Number in the wrong format ${dto.PhoneNumber}.`;
+            console.error(error);
+            throw error;
         }
 
-        const result: CreateOperationResult = {
+        let registration = await RegistrationModel.findOne({ PhoneNumber: dto.PhoneNumber });
+        if (registration) {
+            registration.FirstName = dto.FirstName;
+            registration.LastName = dto.LastName;
+            registration.Email = dto.Email;
+            registration.PhoneNumber = dto.PhoneNumber;
+        } else {
+            registration = new RegistrationModel(dto);
+        }
+        const savedRegistration = await registration.save();
+        const event = await EventModel.findById(req.params.eventId);
+        const eventRegistration = event.Registrations.find(rid => rid == savedRegistration.id);
+        if (!eventRegistration) {
+            event.Registrations.push(savedRegistration._id);
+        }
+
+        const savedEvent = await event.save();
+        const result: DataOperationResult<RegistrationDTO> = {
             Success: true,
-            Id: product._id
+            Data: registration
         };
-    });
+
+        console.log(`Successfully registered ${dto.FirstName} ${dto.LastName} - ${dto.PhoneNumber}`);
+        res.json(result);
+    } catch (err) {
+        return next(err);
+    }
+
 };

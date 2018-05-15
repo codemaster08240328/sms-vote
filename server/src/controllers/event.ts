@@ -7,10 +7,14 @@ import * as utils from '../utils';
 import { DataOperationResult, OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 import { nextTick } from 'q/index';
 import * as Twilio from 'twilio';
+import { IsPhoneNumber } from '../utils';
 
-export let getAnnounce = (req: Request, res: Response) => {
+export let getAnnounce = async (req: Request, res: Response) => {
+    const event = await EventModel.findById(req.params.eventId);
     res.render('announce', {
-      title: 'Announcement'
+        title: 'Announcement',
+        EventName: event.Name,
+        EventId: event._id
     });
   };
 
@@ -115,37 +119,46 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
 
 export const saveEvent = async (req: Request, res: Response, next: NextFunction) => {
     const dto: EventConfigDTO = req.body;
+    console.log(`Saving event: ${dto.Name}`);
     let savedEvent: EventDocument;
-    if (!dto._id) {
-        const eventDTO: EventDTO = dto as EventDTO;
-        eventDTO.Rounds = eventDTO.Rounds.map(r => {
-                r.IsFinished = false;
-                return r;
-            }
-        );
-        const event = new EventModel(eventDTO);
-        try {
-            savedEvent = await event.save();
-        } catch (err) {
-            return next(err);
+    try {
+        if (!dto.PhoneNumber) {
+            const error = 'Invalid event record. No PhoneNumber provided.';
+            console.error(error);
+            throw error;
+        }
+        if (!IsPhoneNumber(dto.PhoneNumber)) {
+            const error = `Invalid event record. Phone Number in the wrong format ${dto.PhoneNumber}.`;
+            console.error(error);
+            throw error;
         }
 
-        const result: DataOperationResult<EventDTO> = {
-            Success: true,
-            Data: savedEvent
-        };
-        res.json(result);
-    } else {
-        try {
+        if (!dto._id) {
+            const eventDTO: EventDTO = dto as EventDTO;
+            eventDTO.Rounds = eventDTO.Rounds.map(r => {
+                    r.IsFinished = false;
+                    return r;
+                }
+            );
+            const event = new EventModel(eventDTO);
+                savedEvent = await event.save();
+
+            const result: DataOperationResult<EventDTO> = {
+                Success: true,
+                Data: savedEvent
+            };
+            res.json(result);
+        } else {
             savedEvent = await EventModel.findByIdAndUpdate(dto._id, dto, { upsert: true });
             const result: DataOperationResult<EventDTO> = {
                 Success: true,
                 Data: savedEvent
             };
             res.json(result);
-        } catch (err) {
-            return next(err);
         }
+    }
+    catch (err) {
+        return next(err);
     }
 };
 

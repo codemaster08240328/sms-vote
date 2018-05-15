@@ -33,7 +33,7 @@ const EventSchema: mongoose.Schema = new mongoose.Schema({
     Contestants: [EventContestantSchema],
     Rounds: [RoundSchema],
     PhoneNumber: String,
-    Registrations: [RegistrationSchema],
+    Registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration', unique: true }],
     CurrentRound: RoundSchema,
     Enabled: Boolean
 });

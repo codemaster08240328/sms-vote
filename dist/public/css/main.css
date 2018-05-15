@@ -35,15 +35,6 @@ li.squish {
   }
 
 .rounded {
-    display: block;
-    width: 100%;
-    height: 45px;
-    padding: 10px 15px;
-    font-size: 15px;
-
-    line-height: 35px;
-    min-height: 20px;
-    padding: 9px;
     border: 1px solid transparent;
     border-radius: 4px;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
@@ -91,3 +82,6 @@ button.btn-default {
     margin-left: 7px
 }
 
+button.btn-danger {
+    margin-left: 7px
+}

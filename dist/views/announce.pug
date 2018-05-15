@@ -1,22 +1,20 @@
 extends ./layout
 
 block content
+    if (user)
     .page-header
-        if (user)
+        h1 Make an announcement for #{EventName}
+        hr.highlight
+    .clearfix
         .row
-            .col-sm-6
-                .row
-                    h1 Make an announcement for #{EventName}
-                    hr.highlight
-                .row
-                    form.form-horizontal(method="POST")
-                        input(type='hidden', name='_csrf', value=_csrf)
-                        .form-group
-                            label.col-sm-2.control-label(for='message') Message
-                            .col-sm-10
-                                input.form-control(type='text', name='Message', id='message', placeholder='Message', autofocus, required)
-                        .form-group
-                            .col-sm-offset-2.col-sm-7
-                                    button.col-sm-3.btn.btn-primary(type='submit')
-                                        i.fa.fa-user
-                                        | Submit
+            form.form-horizontal(method="POST")
+                input(type='hidden', name='_csrf', value=_csrf)
+                .form-group
+                    label.col-sm-2.control-label(for='message') Message
+                    .col-sm-10
+                        input.form-control(type='text', name='Message', id='message', placeholder='Message', autofocus, required)
+                .form-group
+                    .col-sm-offset-2.col-sm-7
+                            button.col-sm-3.btn.btn-primary(type='submit')
+                                i.fa.fa-user
+                                | Submit
