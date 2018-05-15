@@ -24,7 +24,8 @@ const RoundContestantSchema: mongoose.Schema = new mongoose.Schema({
 
 const RoundSchema: mongoose.Schema = new mongoose.Schema({
     RoundNumber: Number,
-    Contestants: [RoundContestantSchema]
+    Contestants: [RoundContestantSchema],
+    IsFinished: Boolean
 });
 
 const EventSchema: mongoose.Schema = new mongoose.Schema({

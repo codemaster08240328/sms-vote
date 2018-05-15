@@ -16369,8 +16369,9 @@
     unwrapExports(bson);
     var bson_1 = bson.ObjectId;
 
-    class VotingEvent {
-        constructor(dto) {
+    class EventEditor {
+        constructor(dto, _closeCallback) {
+            this._closeCallback = _closeCallback;
             this.Name = ko.observable();
             this.Enabled = ko.observable();
             this.Contestants = ko.observableArray();
@@ -16427,20 +16428,12 @@
         SetCurrentRound(round) {
             this.CurrentRound(round);
         }
-    }
-
-    class EventEditor {
-        constructor(dto, _closeCallback) {
-            this._closeCallback = _closeCallback;
-            this.Event = new VotingEvent(dto);
-        }
         Save() {
             return __awaiter(this, void 0, void 0, function* () {
-                const dto = this.Event.ToDTO();
+                const dto = this.ToDTO();
                 const result = yield Request('api/event', 'POST', dto);
                 if (result.Success) {
-                    dto._id = result.Id;
-                    this._closeCallback(dto);
+                    this._closeCallback(result.Data);
                 }
             });
         }
@@ -16513,15 +16506,64 @@
         }
     }
 
+    class EventSummary {
+        constructor(dto) {
+            this.CurrentRound = ko.observable();
+            this.CurrentRoundUpdater = new BusyTracker();
+            this.LoadEvent(dto);
+            this.NextRoundNumber = ko.computed(() => {
+                return this.Rounds
+                    .filter(r => !r.IsFinished)
+                    .map(r => r.RoundNumber)
+                    .reduce((prev, cur) => {
+                    return prev < cur ? prev : cur;
+                });
+            });
+            this.IncrementRoundText = ko.computed(() => {
+                if (this.CurrentRound()) {
+                    return `End Round ${this.CurrentRound().RoundNumber}`;
+                }
+                else if (this.Rounds.some(r => !r.IsFinished)) {
+                    const nextRound = this.Rounds
+                        .filter(r => !r.IsFinished)
+                        .map(r => r.RoundNumber)
+                        .reduce((prev, cur) => {
+                        return prev < cur ? prev : cur;
+                    });
+                    if (nextRound != 0) {
+                        return `Begin Round ${nextRound}`;
+                    }
+                }
+                else {
+                    return `Finished!`;
+                }
+            });
+        }
+        LoadEvent(dto) {
+            this._id = dto._id;
+            this.Name = dto.Name;
+            this.Enabled = dto.Enabled;
+            this.PhoneNumber = dto.PhoneNumber;
+            this.Contestants = dto.Contestants;
+            this.Rounds = dto.Rounds;
+            this.CurrentRound(dto.CurrentRound);
+        }
+        IncrementRound() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const result = yield this.CurrentRoundUpdater.AddOperation(Request(`api/event/${this._id}/incrementround`, 'POST'));
+                if (result.Success) {
+                    this.LoadEvent(result.Data);
+                }
+            });
+        }
+    }
+
     class HomeScreenViewModel {
         constructor() {
             this.Events = ko$1.observableArray();
             this.Editor = ko$1.observable();
             this.LoadingTracker = new BusyTracker();
-            this.LoadingTracker.AddOperation(Request('api/events', 'GET')
-                .then((dtos) => {
-                this.Events(dtos);
-            }));
+            this.LoadEvents();
         }
         AddNew() {
             this.Editor(new EventEditor({
@@ -16534,7 +16576,7 @@
                 CurrentRound: null,
             }, (result) => {
                 if (result) {
-                    this.Events.push(result);
+                    this.Events.push(new EventSummary(result));
                 }
                 this.Editor(null);
             }));
@@ -16544,7 +16586,7 @@
                 const event = yield this.LoadingTracker.AddOperation(Request(`api/event/${eventId}`, 'GET'));
                 this.Editor(new EventEditor(event, (result) => {
                     if (result) {
-                        this.Events.replace(event, result);
+                        this.LoadEvents();
                     }
                     this.Editor(null);
                 }));
@@ -16556,6 +16598,14 @@
                 if (result.Success) {
                     this.Events.remove(event);
                 }
+            });
+        }
+        LoadEvents() {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.LoadingTracker.AddOperation(Request('api/events', 'GET')
+                    .then((dtos) => {
+                    this.Events(dtos.map(e => new EventSummary(e)));
+                }));
             });
         }
     }

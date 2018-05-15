@@ -45,6 +45,15 @@ if (!Array.prototype.find) {
         return undefined;
     };
 }
+/// <reference types="knockout" />
+/// <reference types="ladda" />
+ko.bindingHandlers.buttonbusy = {
+    update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+        const l = Ladda.create(element);
+        const value = ko.unwrap(valueAccessor());
+        value ? l.start() : l.stop();
+    }
+};
 if (!String.prototype.contains) {
     String.prototype.contains = function (str) {
         return this.indexOf(str) > -1;

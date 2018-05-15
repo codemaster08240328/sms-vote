@@ -10,7 +10,7 @@ const naturalSort = require('gulp-natural-sort');
 const sourcemaps = require('gulp-sourcemaps');
 const path = require('path');
 
-function compile(tsConfig, dest) {
+function compile(tsConfig, dest, inline) {
     let tsProject = tsc.createProject(tsConfig);
 
     let tsResult = tsProject.src() // instead of gulp.src(...)
@@ -19,7 +19,7 @@ function compile(tsConfig, dest) {
         .pipe(tsProject());
 
     return tsResult.js
-        .pipe(sourcemaps.write('.')) // Now the sourcemaps are added to the .js file
+        .pipe(inline ? sourcemaps.write() : sourcemaps.write('.')) 
         .pipe(gulp.dest(dest));
 }
 
@@ -108,5 +108,5 @@ gulp.task('build-register', async function () {
 gulp.task('build-client', ['build-common', 'build-home', 'build-voteResults', 'build-register']);
 
 gulp.task('build-server', function() {
-    return compile('./server/src/tsconfig.json', './dist');
+    return compile('./server/src/tsconfig.json', './dist', true);
 });

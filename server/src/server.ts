@@ -155,8 +155,9 @@ app.get('/api/events', passportConfig.isAuthenticated, eventController.getEvents
 app.get('/api/event/:eventId', eventController.getEvent);
 app.post('/api/event/', passportConfig.isAuthenticated, eventController.saveEvent);
 app.delete('/api/event/:eventId', passportConfig.isAuthenticated, eventController.deleteEvent);
+app.post('/api/event/:eventId/incrementround', passportConfig.isAuthenticated, eventController.incrementRound);
 
-app.post('/api/vote/sms', twilio.webhook(), eventController.voteSMS);
+app.post('/api/vote/sms', eventController.voteSMS);
 
 /**
  * Error Handler. Provides full stack - remove for production

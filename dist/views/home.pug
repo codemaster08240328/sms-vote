@@ -40,6 +40,7 @@ block content
                                         th EventId
                                         th Phone Number
                                         th Live
+                                        th Current Round
                                         th Edit
                                         th Delete
                                 tbody
@@ -51,6 +52,10 @@ block content
                                         td(data-bind='text: PhoneNumber')
                                         td
                                             input(type='checkbox', data-bind='enable: false, checked: Enabled')
+                                        td
+                                            button.btn.btn-default.btn-xs.ladda-button(type="button" data-style="zoom-in" data-size="xs" 
+                                                data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy")
+                                                span.ladda-label(data-bind="text: IncrementRoundText")
                                         td
                                             button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parent.Edit(_id); }, disable: $parent.LoadingTracker.Busy")
                                                 i.glyphicon.glyphicon-pencil
@@ -66,7 +71,6 @@ block content
 
     script#eventedit(type="text/template")
         // ko with: Editor
-        // ko with: Event
         .row
             .col-sm-6
                 .panel.panel-primary
@@ -150,7 +154,6 @@ block content
                 button.btn.btn-primary.btn-sm(data-bind='click: AddRound')
                     i.glyphicon.glyphicon-plus
                     |  Add New Round
-        // /ko
         .row
             .col-sm-offset-10.col-sm-2
                 button.btn.btn-default.pull-right(data-bind='click: Cancel') Cancel

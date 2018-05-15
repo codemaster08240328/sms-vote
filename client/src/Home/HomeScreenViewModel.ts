@@ -1,21 +1,19 @@
 import * as ko from 'knockout';
 import { Request } from '../Utils/GatewayFunctions';
 import { OperationResult } from '../../../shared/OperationResult';
-import {EventConfigDTO} from '../../../shared/EventDTO';
+import { EventConfigDTO, EventDTO } from '../../../shared/EventDTO';
 import EventEditor from './EventEditor';
 import { BusyTracker } from '../Utils/BusyTracker';
+import EventSummary from './EventSummary';
 
 export class HomeScreenViewModel {
-    public Events: KnockoutObservableArray<EventConfigDTO> = ko.observableArray<EventConfigDTO>();
+    public Events: KnockoutObservableArray<EventSummary> = ko.observableArray<EventSummary>();
     public Editor: KnockoutObservable<EventEditor> = ko.observable<EventEditor>();
 
     public LoadingTracker: BusyTracker = new BusyTracker();
 
     public constructor() {
-        this.LoadingTracker.AddOperation(Request<EventConfigDTO[]>('api/events', 'GET')
-            .then((dtos) => {
-                this.Events(dtos);
-            }));
+        this.LoadEvents();
     }
 
     public AddNew() {
@@ -30,7 +28,7 @@ export class HomeScreenViewModel {
         },
         (result) => {
             if (result) {
-                this.Events.push(result);
+                this.Events.push(new EventSummary(result));
             }
             this.Editor(null);
         }));
@@ -40,17 +38,24 @@ export class HomeScreenViewModel {
         const event = await this.LoadingTracker.AddOperation(Request<EventConfigDTO>(`api/event/${eventId}`, 'GET'));
         this.Editor(new EventEditor(event, (result) => {
             if (result) {
-                this.Events.replace(event, result);
+                this.LoadEvents();
             }
             this.Editor(null);
         }));
     }
 
-    public async Delete(event: EventConfigDTO) {
+    public async Delete(event: EventSummary) {
         const result = await Request<OperationResult>(`api/event/${event._id}`, 'DELETE');
         if (result.Success) {
             this.Events.remove(event);
         }
+    }
+
+    public async LoadEvents(): Promise<void> {
+        return this.LoadingTracker.AddOperation(Request<EventDTO[]>('api/events', 'GET')
+            .then((dtos) => {
+                this.Events(dtos.map(e => new EventSummary(e)));
+            }));
     }
 }
 

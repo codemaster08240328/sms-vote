@@ -26,11 +26,6 @@
         },
         {
             "type": "npm",
-            "script": "run",
-            "problemMatcher": []
-        },
-        {
-            "type": "npm",
             "script": "build",
             "problemMatcher": [
                 "$gulp-tsc"

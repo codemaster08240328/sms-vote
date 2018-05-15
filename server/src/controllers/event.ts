@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { default as EventModel, EventDocument } from '../models/Event';
 import { RoundConfigDTO } from '../../../shared/RoundDTO';
 import { RoundContestantDTO, EventContestantDTO } from '../../../shared/ContestantDTO';
-import { EventConfigDTO } from '../../../shared/EventDTO';
+import { EventConfigDTO, EventDTO } from '../../../shared/EventDTO';
 import * as utils from '../utils';
-import { OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
+import { DataOperationResult, OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 import { nextTick } from 'q/index';
 
 export const voteSMS = async (request: Request, response: Response, next: NextFunction) => {
@@ -46,13 +46,13 @@ export const voteSMS = async (request: Request, response: Response, next: NextFu
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
         response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
     }
-    else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.ContestantNumber).contains(parseInt(body)))) {
-        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + event.Contestants.length + ']'));
-        response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
-    }
     else if (!event.CurrentRound) {
         console.log(`No round is currently selected for event: ${event.Name}`);
         response.send('<Response><Sms>Voting is now closed.</Sms></Response>');
+    }
+    else if (utils.testint(body) && (parseInt(body) <= 0 || !event.CurrentRound.Contestants.map(c => c.ContestantNumber).contains(parseInt(body)))) {
+        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', ' + ('[1-' + event.Contestants.length + ']'));
+        response.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
     }
     else if (event.hasVoted(from)) {
         console.log('Denying vote: ' + event.Name + ', ' + from + ' - Already voted');
@@ -82,24 +82,30 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
     const dto: EventConfigDTO = req.body;
     let savedEvent: EventDocument;
     if (!dto._id) {
-        const event = new EventModel(dto);
+        const eventDTO: EventDTO = dto as EventDTO;
+        eventDTO.Rounds = eventDTO.Rounds.map(r => {
+                r.IsFinished = false;
+                return r;
+            }
+        );
+        const event = new EventModel(eventDTO);
         try {
             savedEvent = await event.save();
         } catch (err) {
             return next(err);
         }
 
-        const result: CreateOperationResult = {
+        const result: DataOperationResult<EventDTO> = {
             Success: true,
-            Id: savedEvent._id
+            Data: savedEvent
         };
         res.json(result);
     } else {
         try {
             savedEvent = await EventModel.findByIdAndUpdate(dto._id, dto, { upsert: true });
-            const result: CreateOperationResult = {
+            const result: DataOperationResult<EventDTO> = {
                 Success: true,
-                Id: savedEvent._id
+                Data: savedEvent
             };
             res.json(result);
         } catch (err) {
@@ -145,4 +151,56 @@ export const getEvent = async (req: Request, res: Response, next: NextFunction) 
     }
     event.Contestants = event.Contestants.sort((c1, c2) => c1.ContestantNumber - c2.ContestantNumber);
     res.json(event);
+};
+
+export const incrementRound = async (req: Request, res: Response, next: NextFunction) => {
+    let event: EventDocument;
+    try {
+        event = await EventModel.findById(req.params.eventId);
+
+        if (event.CurrentRound) { // if a round is running, complete it
+
+            console.log(`Closing round ${event.CurrentRound.RoundNumber}`);
+
+            const currentRound = event.Rounds
+                .find(r => r.RoundNumber == event.CurrentRound.RoundNumber);
+            currentRound.IsFinished = true;
+            currentRound.Contestants = event.CurrentRound.Contestants;
+            event.CurrentRound = null;
+            const result = await event.save();
+            const operationResult: DataOperationResult<EventDTO> = {
+                Success: true,
+                Data: result
+            };
+            res.json(operationResult);
+        }
+        else {
+            const availableRounds = event.Rounds.filter(r => !r.IsFinished);
+            if (availableRounds.length > 0) { // if there are any rounds left, start the next one
+                const nextRound = availableRounds.reduce((prev, cur) => {
+                    return prev.RoundNumber < cur.RoundNumber ? prev : cur;
+                });
+
+                console.log(`Starting round ${nextRound.RoundNumber}`);
+
+                event.CurrentRound = nextRound;
+                const result = await event.save();
+                const operationResult: DataOperationResult<EventDTO> = {
+                    Success: true,
+                    Data: result
+                };
+                res.json(operationResult);
+            }
+            else { // can't increment because all rounds are finished. return failure.
+                console.log('Attempted to increment round on finished event.');
+                const operationResult: OperationResult = {
+                    Success: false
+                };
+                res.json(operationResult);
+            }
+        }
+    }
+    catch (err) {
+        return next(err);
+    }
 };

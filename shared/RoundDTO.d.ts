@@ -8,6 +8,7 @@ export declare interface RoundConfigDTO {
 
 export declare interface RoundDTO extends RoundConfigDTO {
     Contestants: RoundContestantDTO[];
+    IsFinished: boolean;
 }
 
 export default RoundDTO;

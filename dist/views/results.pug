@@ -9,8 +9,8 @@ block content
     .clearfix
         .row
             .col-sm-8
+                // ko foreach: Rounds
                 .panel.panel-primary
-                    // ko foreach: Rounds
                     .row
                         .col-sm-offset-1.col-sm-10
                             h3(data-bind="text: 'Voting results for Round ' + RoundNumber()")
@@ -31,7 +31,7 @@ block content
                                             .input-sm(type='text', data-bind='text: ContestantNumber')
                                         td.col-sm-1
                                             .input-sm(type='text', data-bind='text: Votes')
-                    // /ko
+                // /ko
 
         .row
             .col-sm-offset-6.col-sm-2
