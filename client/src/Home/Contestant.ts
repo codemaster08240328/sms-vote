@@ -1,6 +1,7 @@
 import * as ko from 'knockout';
 import { EventContestantDTO } from '../../../shared/ContestantDTO';
 import RegistrationDTO from '../../../shared/RegistrationDTO';
+import { ObjectId } from 'bson';
 
 export class Contestant {
     public _id: string;

@@ -70,6 +70,8 @@ mongoose.connection.on('error', () => {
     process.exit();
 });
 
+(<any>mongoose.Promise) = global.Promise;
+
 
 
 /**

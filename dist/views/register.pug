@@ -5,54 +5,62 @@ block content
         h1 Register for #{EventName}
         hr.highlight
     .clearfix
+        // ko foreach: SubmittedNumbers
+        .row
+            .col-sm-6
+                .alert.alert-success.fade.in
+                    button.close(type='button', data-dismiss='alert')
+                        i.glyphicon.glyphicon-remove
+                    div(data-bind="text: `${$data} was sucessfully registered!`")
+        // /ko
         .row
             .col-sm-6(data-bind="with: RegistrationEditor")
                 .row
                     form.form-horizontal
-                        .form-group
-                            label.col-sm-3.control-label(for='firstname') First Name
-                            .col-sm-9
-                                input.form-control(type='text', name='FirstName', id='firstname', placeholder='First Name', autofocus, data-bind='value: FirstName')
-                        .form-group
-                            label.col-sm-3.control-label(for='lastname') Last Name
-                            .col-sm-9
-                                input.form-control(type='text', name='LastName', id='lastname', placeholder='Last Name', data-bind='value: LastName')
-                        .form-group
-                            label.col-sm-3.control-label(for='email') Email
-                            .col-sm-9
-                                input.form-control(type='email', name='Email', id='email', placeholder='Email', data-bind='value: Email')
+                        //- .form-group
+                        //-     label.col-sm-3.control-label(for='firstname') First Name
+                        //-     .col-sm-9
+                        //-         input.form-control(type='text', name='FirstName', id='firstname', placeholder='First Name', autofocus, data-bind='value: FirstName')
+                        //- .form-group
+                        //-     label.col-sm-3.control-label(for='lastname') Last Name
+                        //-     .col-sm-9
+                        //-         input.form-control(type='text', name='LastName', id='lastname', placeholder='Last Name', data-bind='value: LastName')
+                        //- .form-group
+                        //-     label.col-sm-3.control-label(for='email') Email
+                        //-     .col-sm-9
+                        //-         input.form-control(type='email', name='Email', id='email', placeholder='Email', data-bind='value: Email')
                         .form-group(data-bind="css: { 'has-error' : !IsPhoneNumberValid() } ")
                             label.col-sm-3.control-label(for='PhoneNumber') Phone Number
                             .col-sm-9
-                                input.form-control(type='tel', name='PhoneNumber', id='phonenumber', placeholder='Phone Number', required, data-bind='value: PhoneNumber')
+                                input.form-control(type='tel', name='PhoneNumber', id='phonenumber', placeholder='Phone Number', required, data-bind='value: PhoneNumber', autofocus="true")
                         .form-group
                             .col-sm-12
-                                button.btn.btn-danger.pull-right(data-bind="click: Reset") Reset
+                                //- button.btn.btn-danger.pull-right(data-bind="click: Reset") Reset
                                 button.btn.btn-primary.pull-right(data-bind='click: Save') Submit
-            .col-sm-6(data-bind="with: RegisteredVoters")
-                .row
-                    .col-sm-offset-1.col-sm-10
-                        span Registered
-                        .pull-right 
-                            label.label(for="filter") Filter:
-                            input.input.rounded.pull-right#filter(type="text", data-bind="value: Filter, valueUpdate: 'afterkeydown'")
-                .row
-                    .col-sm-offset-1.col-sm-10
-                            table.table.table-hover
-                                thead
-                                    tr
-                                        th First Name
-                                        th Last Name
-                                        th E-mail
-                                        th Phone Number
-                                tbody
-                                    // ko foreach: FilteredRegistrations
-                                    tr(data-bind="click: function() { $parent.Selected($data) }")
-                                        td(data-bind="text: FirstName")
-                                        td(data-bind="text: LastName")
-                                        td(data-bind="text: Email")
-                                        td(data-bind="text: PhoneNumber")
-                                    // /ko
+            //- .col-sm-6(data-bind="with: RegisteredVoters")
+            //-     .row
+            //-         .col-sm-offset-1.col-sm-10
+            //-             span Registered
+            //-             .pull-right 
+            //-                 label.label(for="filter") Filter:
+            //-                 input.input.rounded.pull-right#filter(type="text", data-bind="value: Filter, valueUpdate: 'afterkeydown'")
+            //-     .row
+            //-         .col-sm-offset-1.col-sm-10
+            //-                 table.table.table-hover
+            //-                     thead
+            //-                         tr
+            //-                             th First Name
+            //-                             th Last Name
+            //-                             th E-mail
+            //-                             th Phone Number
+            //-                     tbody
+            //-                         // ko foreach: FilteredRegistrations
+            //-                         tr(data-bind="click: function() { $parent.Selected($data) }")
+            //-                             td(data-bind="text: FirstName")
+            //-                             td(data-bind="text: LastName")
+            //-                             td(data-bind="text: Email")
+            //-                             td(data-bind="text: PhoneNumber")
+            //-                         // /ko
 
 block append scripts
     if(user)

@@ -99,33 +99,34 @@ block content
                                 input#chkEnabled.form-control.checkbox-inline(type='checkbox', data-bind='checked: Enabled')
             .col-sm-ofset-1.col-sm-6
                 .panel.panel-primary
-                    .row
-                        .col-sm-offset-1.col-sm-10
-                            h3 Artists
-                            table.table
-                                thead
-                                    tr
-                                        th Easel
-                                        th Name
-                                        th
-                                        // th Sort
-                                tbody(data-bind="sortable: Contestants")
-                                    tr
-                                        td.col-sm-1
-                                            .input-sm.text-success(data-bind="text: $index() + 1")
-                                        td.col-sm-7
-                                            input.input-sm.form-control(type='text', data-bind='value: Name', autofocus='true')
-                                        td.col-sm-1
-                                            button.btn.btn-sm.btn-danger(data-bind='click: () => { $parent.DeleteContestant($data); }')
-                                                i.glyphicon.glyphicon-remove
-                                        // td.col-sm-1.drag-handle
-                                            .input-sm
-                                                i.glyphicon.glyphicon-menu-hamburger
-                    .row
-                        .col-sm-offset-11.col-sm-1
-                            button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddContestant')
-                                i.glyphicon.glyphicon-plus
-                                |  Add New Artist
+                    form(name='Artists')
+                        .row
+                            .col-sm-offset-1.col-sm-10
+                                h3 Artists
+                                table.table
+                                    thead
+                                        tr
+                                            th Easel
+                                            th Name
+                                            th
+                                            // th Sort
+                                    tbody(data-bind="sortable: Contestants")
+                                        tr
+                                            td.col-sm-1
+                                                .input-sm.text-success(data-bind="text: $index() + 1")
+                                            td.col-sm-7
+                                                input.input-sm.form-control(type='text', data-bind='value: Name, hotkeydown: {"enter": $parent.AddContestant }, hasFocus: true')
+                                            td.col-sm-1
+                                                button.btn.btn-sm.btn-danger(data-bind='click: () => { $parent.DeleteContestant($data); }', type='button')
+                                                    i.glyphicon.glyphicon-remove
+                                            // td.col-sm-1.drag-handle
+                                                .input-sm
+                                                    i.glyphicon.glyphicon-menu-hamburger
+                        .row
+                            .col-sm-offset-11.col-sm-1
+                                button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddContestant')
+                                    i.glyphicon.glyphicon-plus
+                                    |  Add New Artist
 
         hr.highlight
         .row

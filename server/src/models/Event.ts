@@ -19,7 +19,7 @@ const EventContestantSchema: mongoose.Schema = new mongoose.Schema({
 const RoundContestantSchema: mongoose.Schema = new mongoose.Schema({
     Name: String,
     ContestantNumber: Number,
-    Votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration', unique: true }]
+    Votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration'}]
 });
 
 const RoundSchema: mongoose.Schema = new mongoose.Schema({
@@ -33,7 +33,7 @@ const EventSchema: mongoose.Schema = new mongoose.Schema({
     Contestants: [EventContestantSchema],
     Rounds: [RoundSchema],
     PhoneNumber: String,
-    Registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration', unique: true }],
+    Registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration' }],
     CurrentRound: RoundSchema,
     Enabled: Boolean
 });

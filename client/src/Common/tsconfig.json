@@ -1,11 +1,16 @@
 {
+    "extends": "../tsconfig.json",
     "compilerOptions": {
         "importHelpers": false,
         "module": "none",
-        "target": "es6",
+        "target": "es2017",
         "noImplicitAny": true,
         "outFile": "common.js",
-        "sourceMap": true
+        "sourceMap": true,
+        "types": [
+            "knockout",
+            "ladda"
+        ]
     },
     "compileOnSave": false
 }

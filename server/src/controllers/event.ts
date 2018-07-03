@@ -23,7 +23,10 @@ export const announce = async (req: Request, res: Response, next: NextFunction) 
 
     const message = req.param('Message').trim();
     try {
-        const event = await EventModel.findById(req.params.eventId);
+        const event = await EventModel
+            .findById(req.params.eventId)
+            .populate('Registrations')
+            .exec();
 
         const twilioClient = Twilio();
 
@@ -152,15 +155,19 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
             throw error;
         }
 
-        if (!dto._id) {
+        let event = await EventModel.findById(dto._id);
+
+        if (!event) {
             const eventDTO: EventDTO = dto as EventDTO;
             eventDTO.Rounds = eventDTO.Rounds.map(r => {
                     r.IsFinished = false;
+                    r.Contestants.forEach(c => c.Votes);
                     return r;
                 }
             );
-            const event = new EventModel(eventDTO);
-                savedEvent = await event.save();
+
+            event = new EventModel(eventDTO);
+            savedEvent = await event.save();
 
             const result: DataOperationResult<EventDTO> = {
                 Success: true,
@@ -168,7 +175,7 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
             };
             res.json(result);
         } else {
-            savedEvent = await EventModel.findByIdAndUpdate(dto._id, dto, { upsert: true });
+            event = await EventModel.findByIdAndUpdate(dto._id, dto, { upsert: true });
             const result: DataOperationResult<EventDTO> = {
                 Success: true,
                 Data: savedEvent

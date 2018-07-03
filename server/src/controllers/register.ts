@@ -6,7 +6,7 @@ import { DataOperationResult, OperationResult, CreateOperationResult } from '../
 import { EventDocument } from '../models/Event';
 import EventModel from '../models/Event';
 import * as mongoose from 'mongoose';
-import { IsPhoneNumber } from '../utils';
+import { IsPhoneNumber, SanitizePhoneNumber } from '../utils';
 
 /**
  * GET /
@@ -49,7 +49,7 @@ export const getRegistrations = async (req: Request, res: Response, next: NextFu
  */
 export const registerVoter = async (req: Request, res: Response, next: NextFunction) => {
     const dto: RegistrationDTO = req.body;
-    console.log(`Registering ${dto.FirstName} ${dto.LastName} - ${dto.PhoneNumber}`);
+    console.log(`Registering ${dto.PhoneNumber}`);
     try {
         if (!dto.PhoneNumber) {
             const error = 'Invalid registration record. No PhoneNumber provided.';
@@ -62,6 +62,8 @@ export const registerVoter = async (req: Request, res: Response, next: NextFunct
             throw error;
         }
 
+        dto.PhoneNumber = SanitizePhoneNumber(dto.PhoneNumber);
+
         let registration = await RegistrationModel.findOne({ PhoneNumber: dto.PhoneNumber });
         if (registration) {
             registration.FirstName = dto.FirstName;
@@ -73,7 +75,7 @@ export const registerVoter = async (req: Request, res: Response, next: NextFunct
         }
         const savedRegistration = await registration.save();
         const event = await EventModel.findById(req.params.eventId);
-        const eventRegistration = event.Registrations.find(rid => rid == savedRegistration.id);
+        const eventRegistration = event.Registrations.find(rid => rid == savedRegistration._id);
         if (!eventRegistration) {
             event.Registrations.push(savedRegistration._id);
         }

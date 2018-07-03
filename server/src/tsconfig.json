@@ -3,6 +3,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "moduleResolution": "node",
+        "noEmitHelpers": true,
         "baseUrl": ".",
         "paths": {
             "*": [

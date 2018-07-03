@@ -3,6 +3,8 @@ import { Request } from '../Utils/GatewayFunctions';
 import { DataOperationResult } from '../../../shared/OperationResult';
 import { IsPhoneNumber } from '../Utils/ValidationUtils';
 
+import { ObjectId } from 'bson';
+
 export class RegistrationEditor {
     public _id: string;
     public FirstName: KnockoutObservable<string> = ko.observable<string>();
@@ -21,7 +23,7 @@ export class RegistrationEditor {
 
     public ToDTO(): RegistrationDTO {
         return {
-            _id: this._id,
+            _id: this._id || new ObjectId().toHexString(),
             FirstName: this.FirstName(),
             LastName: this.LastName(),
             Email: this.Email(),

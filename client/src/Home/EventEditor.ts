@@ -6,6 +6,7 @@ import { ContestantDTO } from '../../../shared/ContestantDTO';
 import { EventConfigDTO, EventDTO } from '../../../shared/EventDTO';
 import Contestant from './Contestant';
 import Round from './Round';
+
 import { ObjectId } from 'bson';
 
 export class EventEditor {
@@ -68,7 +69,7 @@ export class EventEditor {
 
     public AddRound(): void {
         this.Rounds.push(new Round({
-            _id: null,
+            _id: new ObjectId().toHexString(),
             RoundNumber: this.Rounds().length + 1,
             Contestants: []
         }, this.Contestants));
@@ -86,7 +87,7 @@ export class EventEditor {
         const dto = this.ToDTO();
         const result = await Request<DataOperationResult<EventDTO>>('api/event', 'POST', dto);
         if (result.Success) {
-            this._closeCallback(result.Data);
+            window.location.reload();
         }
     }
 

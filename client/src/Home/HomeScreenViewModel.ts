@@ -6,6 +6,8 @@ import EventEditor from './EventEditor';
 import { BusyTracker } from '../Utils/BusyTracker';
 import EventSummary from './EventSummary';
 
+import { ObjectId } from 'bson';
+
 export class HomeScreenViewModel {
     public Events: KnockoutObservableArray<EventSummary> = ko.observableArray<EventSummary>();
     public Editor: KnockoutObservable<EventEditor> = ko.observable<EventEditor>();
@@ -18,7 +20,7 @@ export class HomeScreenViewModel {
 
     public AddNew() {
         this.Editor(new EventEditor({
-            _id: null,
+            _id: new ObjectId().toHexString(),
             Name: '',
             Enabled: false,
             Contestants: [],
