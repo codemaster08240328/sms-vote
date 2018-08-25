@@ -3,17 +3,27 @@ extends layout
 block content
     .page-header
         .row
-            .col-sm-6
+            .col-sm-5
                 h1 Results for #{EventName}
+        .row
+            .col-sm-offset-6.col-sm-3
+                h4.text-info(data-bind="text: 'Registered Voters: ' + RegistrationCount()")
+        .row
+            .col-sm-8
                 hr.highlight
     .clearfix
         .row
             .col-sm-8
                 // ko foreach: Rounds
-                .panel.panel-primary
+                .panel(data-bind="css: { 'panel-success' : IsCurrentRound, 'panel-default' : IsFinished, 'panel-primary' : !IsCurrentRound && !IsFinished }")
                     .row
                         .col-sm-offset-1.col-sm-10
-                            h3(data-bind="text: 'Voting results for Round ' + RoundNumber()")
+                            h3
+                                span(data-bind="text: 'Voting results for Round ' + RoundNumber(), css: { 'text-success' : IsCurrentRound }")
+                                span.label.label-success.pull-right(data-bind="if: IsCurrentRound") Active
+                                span.label.label-default.pull-right(data-bind="if: IsFinished") Finished
+                    .row
+                        .col-sm-offset-1.col-sm-10
                             table.table
                                 thead
                                     tr
@@ -24,13 +34,17 @@ block content
                                 tbody(data-bind="foreach: Contestants")
                                     tr
                                         td.col-sm-1
-                                            .input-sm.text-success(data-bind="text: Rank")
+                                            .input-sm(data-bind="text: Rank, css: { 'text-success' : Rank == 1, 'text-info' : Rank != 1 }")
                                         td.col-sm-6
                                             .input-sm(type='text', data-bind='text: Name')
                                         td.col-sm-2
-                                            .input-sm(type='text', data-bind='text: ContestantNumber')
+                                            .input-sm(type='text', data-bind='text: EaselNumber')
                                         td.col-sm-1
                                             .input-sm(type='text', data-bind='text: Votes')
+                    .row
+                        .col-sm-offset-9.col-sm-2
+                            h4.pull-right(data-bind="text: 'Total: ' + VotesCast")
+                            
                 // /ko
 
         .row

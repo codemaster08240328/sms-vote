@@ -1,14 +1,14 @@
 import * as ko from 'knockout';
-import { RoundContestantDTO } from '../../../shared/ContestantDTO';
+import { RoundContestantDTO } from '../../../shared/RoundContestantDTO';
 
 export class ContestantResults {
-    public ContestantNumber: number = null;
+    public EaselNumber: number = null;
     public Name: string = null;
     public Votes: number = null;
 
     public constructor(dto: RoundContestantDTO, public Rank: number) {
-        this.ContestantNumber = dto.ContestantNumber;
-        this.Name = dto.Name;
+        this.EaselNumber = dto.EaselNumber;
+        this.Name = dto.Detail.Name;
         this.Votes = dto.Votes.length;
     }
 }

@@ -6,11 +6,6 @@ export declare interface ContestantDTO {
 }
 
 export declare interface EventContestantDTO extends ContestantDTO {
-    ContestantNumber: number;
 }
 
-export declare interface RoundContestantDTO extends EventContestantDTO {
-    Votes: RegistrationDTO[];
-}
-
-export default RoundContestantDTO;
+export default ContestantDTO;

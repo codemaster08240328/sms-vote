@@ -8,3 +8,4 @@ db.registrations.deleteMany({ PhoneNumber: null  })
 
 //delete all registrations for all events
 db.events.updateMany({}, { $set: { Registrations: [] } })
+

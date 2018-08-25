@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { default as EventModel, EventDocument } from '../models/Event';
-import { RoundConfigDTO } from '../../../shared/RoundDTO';
-import { RoundContestantDTO, EventContestantDTO } from '../../../shared/ContestantDTO';
-import { EventConfigDTO, EventDTO } from '../../../shared/EventDTO';
+import ContestantModel from '../models/Contestant';
+import { RoundDTO } from '../../../shared/RoundDTO';
+import { EventContestantDTO } from '../../../shared/ContestantDTO';
+import RoundContestantDTO from '../../../shared/RoundContestantDTO';
+import { EventDTO } from '../../../shared/EventDTO';
 import * as utils from '../utils';
 import { DataOperationResult, OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 import { nextTick } from 'q/index';
@@ -31,7 +33,7 @@ export const announce = async (req: Request, res: Response, next: NextFunction) 
         const twilioClient = Twilio();
 
         event.Registrations.forEach(registrant => {
-            console.log(`Sending message: ${message} From: ${event.PhoneNumber} To: ${registrant.FirstName} ${registrant.LastName} - ${registrant.PhoneNumber}`);
+            console.log(`Sending message: ${message} From: ${event.PhoneNumber} To: ${registrant.PhoneNumber}`);
             twilioClient.messages.create({
                 from: event.PhoneNumber,
                 to: registrant.PhoneNumber,
@@ -65,8 +67,12 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
     let events: EventDocument[];
     try {
         events = await EventModel
-            .find(( { PhoneNumber: to } ))
+            .find(( { PhoneNumber: to, Enabled: true } ))
             .populate('Registrations')
+            .populate('Contestants')
+            .populate('Rounds.Contestants.Detail')
+            .populate('Rounds.Contestants.Votes')
+            .populate('CurrentRound.Contestants.Detail')
             .populate('CurrentRound.Contestants.Votes')
             .exec();
     } catch (err) {
@@ -97,7 +103,7 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
         return;
     }
 
-    const availableOptions = event.CurrentRound.Contestants.map(c => c.ContestantNumber);
+    const availableOptions = event.CurrentRound.Contestants.map(c => c.EaselNumber);
     const availableOptionsString = availableOptions.join(', ');
     const vote = parseInt(body);
     if (!availableOptions.contains(vote) ) {
@@ -124,7 +130,7 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
         const registration = event.Registrations.find(r => r.PhoneNumber == from);
 
         const votedFor = event.CurrentRound.Contestants
-            .find(c => c.ContestantNumber === choice);
+            .find(c => c.EaselNumber === choice);
         votedFor.Votes.push(registration);
 
         event.save((err) => {
@@ -132,15 +138,15 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
                 res.send('<Response><Sms>We encountered an error saving your vote. Try again?</Sms></Response>');
             }
             else {
-                console.log('Accepting vote: ' + votedFor.Name + ', ' + from);
-                res.send('<Response><Sms>Thanks for your vote for ' + votedFor.Name + '.</Sms></Response>');
+                console.log('Accepting vote: ' + votedFor.Detail.Name + ', ' + from);
+                res.send('<Response><Sms>Thanks for your vote for ' + votedFor.Detail.Name + '.</Sms></Response>');
             }
         });
     }
 };
 
 export const saveEvent = async (req: Request, res: Response, next: NextFunction) => {
-    const dto: EventConfigDTO = req.body;
+    const dto: EventDTO = req.body;
     console.log(`Saving event: ${dto.Name}`);
     let savedEvent: EventDocument;
     try {
@@ -155,13 +161,15 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
             throw error;
         }
 
+        dto.Contestants.map(contestant => ContestantModel.findByIdAndUpdate(contestant._id, contestant, { upsert: true }).exec())
+            .forEach(async promise => await promise);
+
         let event = await EventModel.findById(dto._id);
 
         if (!event) {
             const eventDTO: EventDTO = dto as EventDTO;
             eventDTO.Rounds = eventDTO.Rounds.map(r => {
                     r.IsFinished = false;
-                    r.Contestants.forEach(c => c.Votes);
                     return r;
                 }
             );
@@ -202,29 +210,40 @@ export const deleteEvent = (req: Request, res: Response, next: NextFunction) => 
     });
 };
 
-export const getEvents = (req: Request, res: Response, next: NextFunction) => {
-    EventModel.find((err, events: EventDocument[]) => {
-        if (err) {
-            return next(err);
-        }
-        events = events.map(v => {
-            v.Contestants = v.Contestants.sort((c1, c2) => c1.ContestantNumber - c2.ContestantNumber);
-            return v;
-        });
+export const getEvents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const events: EventDocument[] = await EventModel.find()
+            .populate('Contestants')
+            .populate('Rounds.Contestants.Detail')
+            .populate('Rounds.Contestants.Votes')
+            .populate('CurrentRound.Contestants.Detail')
+            .populate('CurrentRound.Contestants.Votes')
+            .exec();
+
         res.json(events);
-    });
+    }
+    catch (err) {
+        return next(err);
+    }
 };
 
 export const getEvent = async (req: Request, res: Response, next: NextFunction) => {
     let event: EventDocument;
     try {
-        event = await EventModel.findById(req.params.eventId);
+        event = await EventModel
+            .findById(req.params.eventId)
+            .populate('Contestants')
+            .populate('Rounds.Contestants.Detail')
+            .populate('Rounds.Contestants.Votes')
+            .populate('CurrentRound.Contestants.Detail')
+            .populate('CurrentRound.Contestants.Votes')
+            .exec();
+
+        res.json(event);
     }
     catch (err) {
         return next(err);
     }
-    event.Contestants = event.Contestants.sort((c1, c2) => c1.ContestantNumber - c2.ContestantNumber);
-    res.json(event);
 };
 
 export const incrementRound = async (req: Request, res: Response, next: NextFunction) => {

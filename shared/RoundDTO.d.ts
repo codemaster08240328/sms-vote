@@ -1,9 +1,9 @@
-import { EventContestantDTO, RoundContestantDTO }  from './ContestantDTO';
+import { RoundContestantDTO, RoundContestantConfigDTO } from './RoundContestantDTO';
 
 export declare interface RoundConfigDTO {
     _id: any;
     RoundNumber: number;
-    Contestants: EventContestantDTO[];
+    Contestants: RoundContestantConfigDTO[];
 }
 
 export declare interface RoundDTO extends RoundConfigDTO {

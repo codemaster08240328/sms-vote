@@ -37,31 +37,33 @@ block content
                             .col-sm-12
                                 //- button.btn.btn-danger.pull-right(data-bind="click: Reset") Reset
                                 button.btn.btn-primary.pull-right(data-bind='click: Save') Submit
-            //- .col-sm-6(data-bind="with: RegisteredVoters")
-            //-     .row
-            //-         .col-sm-offset-1.col-sm-10
-            //-             span Registered
-            //-             .pull-right 
-            //-                 label.label(for="filter") Filter:
-            //-                 input.input.rounded.pull-right#filter(type="text", data-bind="value: Filter, valueUpdate: 'afterkeydown'")
-            //-     .row
-            //-         .col-sm-offset-1.col-sm-10
-            //-                 table.table.table-hover
-            //-                     thead
-            //-                         tr
-            //-                             th First Name
-            //-                             th Last Name
-            //-                             th E-mail
-            //-                             th Phone Number
-            //-                     tbody
-            //-                         // ko foreach: FilteredRegistrations
-            //-                         tr(data-bind="click: function() { $parent.Selected($data) }")
-            //-                             td(data-bind="text: FirstName")
-            //-                             td(data-bind="text: LastName")
-            //-                             td(data-bind="text: Email")
-            //-                             td(data-bind="text: PhoneNumber")
-            //-                         // /ko
-
+            .col-sm-6(data-bind="with: RegisteredVoters")
+                .row
+                    .col-sm-offset-1.col-sm-10
+                        span Registered
+                        .pull-right
+                            label.label(for="filter") Filter:
+                            input.input.rounded.pull-right#filter(type="text", data-bind="value: Filter, valueUpdate: 'afterkeydown'")
+                .row
+                    .col-sm-offset-1.col-sm-10
+                            table.table.table-hover
+                                thead
+                                    tr
+                                        //- th First Name
+                                        //- th Last Name
+                                        //- th E-mail
+                                        th Phone Number
+                                tbody
+                                    // ko foreach: FilteredRegistrations
+                                    tr(data-bind="click: function() { $parent.Selected($data) }")
+                                        //- td(data-bind="text: FirstName")
+                                        //- td(data-bind="text: LastName")
+                                        //- td(data-bind="text: Email")
+                                        td(data-bind="text: PhoneNumber")
+                                    // /ko
+        .row
+            .col-sm-12
+                a.btn.btn-primary.pull-right(href="/") Back
 block append scripts
     if(user)
         script(src='/js/register.js')

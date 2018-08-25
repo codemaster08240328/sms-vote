@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import { RegistrationSchema } from './Registration';
 import EventDTO from '../../../shared/EventDTO';
 import RoundDTO from '../../../shared/RoundDTO';
-import RoundContestantDTO from '../../../shared/ContestantDTO';
+import RoundContestantDTO from '../../../shared/RoundContestantDTO';
 import RegistrationDTO from '../../../shared/RegistrationDTO';
 
 
@@ -11,14 +11,10 @@ export interface EventDocument extends EventDTO, mongoose.Document {
     hasVoted(phoneNumber: string): boolean;
 }
 
-const EventContestantSchema: mongoose.Schema = new mongoose.Schema({
-    Name: String,
-    ContestantNumber: Number,
-});
-
 const RoundContestantSchema: mongoose.Schema = new mongoose.Schema({
-    Name: String,
-    ContestantNumber: Number,
+    Detail: { type: mongoose.Schema.Types.ObjectId, ref: 'Contestant'},
+    Enabled: Boolean,
+    EaselNumber: Number,
     Votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration'}]
 });
 
@@ -30,7 +26,7 @@ const RoundSchema: mongoose.Schema = new mongoose.Schema({
 
 const EventSchema: mongoose.Schema = new mongoose.Schema({
     Name: { type: String, unique: true },
-    Contestants: [EventContestantSchema],
+    Contestants: [{type: mongoose.Schema.Types.ObjectId, ref: 'Contestant'}],
     Rounds: [RoundSchema],
     PhoneNumber: String,
     Registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration' }],

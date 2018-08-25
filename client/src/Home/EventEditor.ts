@@ -45,21 +45,10 @@ export class EventEditor {
         return dto;
     }
 
-    public ContestantOrderUpdated(): void {
-        this.Contestants().forEach((c, idx) => {
-            c.ContestantNumber(idx + 1);
-        });
-
-        this.Rounds().forEach((r) => {
-
-        });
-    }
-
     public AddContestant(): void {
         this.Contestants.push(new Contestant({
             _id: new ObjectId().toHexString(),
-            Name: '',
-            ContestantNumber: this.Contestants().length + 1,
+            Name: ''
         }));
     }
 

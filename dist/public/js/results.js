@@ -4,24 +4,29 @@
     class ContestantResults {
         constructor(dto, Rank) {
             this.Rank = Rank;
-            this.ContestantNumber = null;
+            this.EaselNumber = null;
             this.Name = null;
             this.Votes = null;
-            this.ContestantNumber = dto.ContestantNumber;
-            this.Name = dto.Name;
+            this.EaselNumber = dto.EaselNumber;
+            this.Name = dto.Detail.Name;
             this.Votes = dto.Votes.length;
         }
     }
 
     class Round {
-        constructor(dto) {
+        constructor(dto, IsCurrentRound) {
+            this.IsCurrentRound = IsCurrentRound;
             this.RoundNumber = ko.observable();
+            this.IsFinished = false;
             this.Contestants = ko.observableArray();
             this.RoundNumber(dto.RoundNumber);
+            this.IsFinished = dto.IsFinished;
             const contestants = dto.Contestants
+                .filter(c => c.Enabled)
                 .sort((a, b) => b.Votes.length - a.Votes.length)
                 .map((c, idx) => new ContestantResults(c, idx + 1));
             this.Contestants(contestants);
+            this.VotesCast = dto.Contestants.map(c => c.Votes.length).reduce((prv, cur) => prv + cur, 0);
         }
     }
 
@@ -119,15 +124,20 @@
         constructor() {
             this.Name = ko.observable();
             this.Rounds = ko.observableArray();
+            this.RegistrationCount = ko.observable();
             this.LoadingTracker = new BusyTracker();
             // path is artbattle.com/event/{eventId}/results
             this._eventId = location.pathname.split('/')[2];
             this.LoadingTracker.AddOperation(Request(`/api/event/${this._eventId}`, 'GET')
                 .then((dto) => {
                 this.Name(dto.Name);
+                this.RegistrationCount(dto.Registrations.length);
                 const rounds = dto.Rounds
                     .sort((a, b) => a.RoundNumber - b.RoundNumber)
-                    .map(c => new Round(c));
+                    .map(c => {
+                    const isCurrentRound = dto.CurrentRound && dto.CurrentRound._id == c._id;
+                    return new Round(isCurrentRound ? dto.CurrentRound : c, isCurrentRound);
+                });
                 this.Rounds(rounds);
             }));
         }

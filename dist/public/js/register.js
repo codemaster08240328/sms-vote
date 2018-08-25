@@ -29,6 +29,116 @@
         });
     }
 
+    class BusyTracker {
+        constructor() {
+            this._tasks = ko.observableArray();
+            this._operations = ko.observableArray();
+            this.ConfigureDependentObservables();
+        }
+        ConfigureDependentObservables() {
+            this.Busy = ko.computed({
+                owner: this,
+                read: () => {
+                    return this._tasks().length + this._operations().length > 0;
+                }
+            });
+        }
+        AddTask(task) {
+            /// <param name="task" type="String">
+            /// Identifies the task being performed that is keeping the tracker busy
+            /// </param>
+            if (!this._tasks().contains(task)) {
+                this._tasks.push(task);
+            }
+        }
+        AddOperations(operations) {
+            /// <param name="operations" type="Array">
+            /// </param>
+            operations.forEach((operation) => {
+                this.AddOperation(operation);
+            });
+        }
+        async AddOperation(operation) {
+            /// <param name="operation" type="JQueryPromise">
+            /// </param>
+            /// <returns type="JQueryPromise"></returns>
+            const existingOperation = ko.utils.arrayFirst(this._operations(), (listOperation) => {
+                return listOperation === operation;
+            }, this);
+            if (existingOperation == null) {
+                this._operations.push(operation);
+                operation.then(() => {
+                    this._operations.remove(operation);
+                });
+            }
+            return operation;
+        }
+        TaskComplete(task) {
+            /// <param name="task" type="String">
+            /// </param>
+            if (this._tasks().contains(task)) {
+                this._tasks.remove(task);
+            }
+        }
+        ClearTasks() {
+            this._tasks.removeAll();
+        }
+        HasTask(taskName) {
+            /// <param name="taskName" type="String">
+            /// </param>
+            /// <returns type="Boolean"></returns>
+            return this._tasks().contains(taskName);
+        }
+    }
+
+    class RegisteredVoterList {
+        constructor(eventId, _voterSelectedCallback) {
+            this._voterSelectedCallback = _voterSelectedCallback;
+            this.Voters = ko.observableArray();
+            this.Filter = ko.observable();
+            this.LoadingTracker = new BusyTracker();
+            this.LoadingTracker.AddOperation(Request(`/api/event/${eventId}/registrations`, 'GET')
+                .then((dtos) => {
+                const registeredVoters = dtos
+                    .sort((a, b) => a.PhoneNumber.compareTo(b.PhoneNumber, true));
+                this.Voters(registeredVoters);
+            }));
+            this.ConfigureComputed();
+        }
+        UpdateRegistration(dto) {
+            const registrations = this.Voters();
+            const eventRegistration = registrations.find(r => r.PhoneNumber == dto.PhoneNumber);
+            if (eventRegistration) {
+                registrations.splice(registrations.indexOf(eventRegistration), 1, dto);
+                this.Voters(registrations);
+            }
+            else {
+                this.Voters.push(dto);
+            }
+        }
+        Selected(dto) {
+            this._voterSelectedCallback(dto);
+        }
+        ConfigureComputed() {
+            this.FilteredRegistrations = ko.computed(() => {
+                if (this.Filter()) {
+                    const filter = this.Filter().toLocaleLowerCase();
+                    const filteredVoters = this.Voters()
+                        .filter(r => {
+                        return (r.Email && r.Email.toLocaleLowerCase().contains(filter)) ||
+                            (r.FirstName && r.FirstName.toLocaleLowerCase().contains(filter)) ||
+                            (r.LastName && r.LastName.toLocaleLowerCase().contains(filter)) ||
+                            (r.PhoneNumber && r.PhoneNumber.toLocaleLowerCase().contains(filter));
+                    });
+                    return filteredVoters;
+                }
+                else {
+                    return this.Voters();
+                }
+            });
+        }
+    }
+
     function IsPhoneNumber(str) {
         return /1\d{10}/.test(str) || /^([2-9])(\d{9})/.test(str);
     }
@@ -16358,14 +16468,13 @@
     class RegistrationScreenViewModel {
         constructor() {
             this.EventId = location.pathname.split('/')[2];
-            // public RegisteredVoters: RegisteredVoterList;
             this.RegistrationEditor = ko$1.observable();
             this.SubmittedNumbers = ko$1.observableArray();
-            // this.RegisteredVoters = new RegisteredVoterList(this.EventId, this.OnVoterSelected.bind(this));
+            this.RegisteredVoters = new RegisteredVoterList(this.EventId, this.OnVoterSelected.bind(this));
             this.ResetEditor();
         }
         OnRegistrationSubmitted(dto) {
-            // this.RegisteredVoters.UpdateRegistration(dto);
+            this.RegisteredVoters.UpdateRegistration(dto);
             this.SubmittedNumbers.push(dto.PhoneNumber);
             setTimeout(() => {
                 this.SubmittedNumbers.remove(dto.PhoneNumber);

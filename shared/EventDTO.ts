@@ -1,6 +1,6 @@
 import RegistrationDTO from './RegistrationDTO';
 import { RoundDTO, RoundConfigDTO } from './RoundDTO';
-import { ContestantDTO, EventContestantDTO, RoundContestantDTO } from './ContestantDTO';
+import { ContestantDTO, EventContestantDTO } from './ContestantDTO';
 
 export declare interface EventConfigDTO {
     _id: any;

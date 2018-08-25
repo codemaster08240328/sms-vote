@@ -1,6 +1,6 @@
 import RegistrationDTO from '../../../shared/RegistrationDTO';
 import { RoundDTO, RoundConfigDTO } from '../../../shared/RoundDTO';
-import { ContestantDTO, EventContestantDTO, RoundContestantDTO } from '../../../shared/ContestantDTO';
+import { ContestantDTO, EventContestantDTO } from '../../../shared/ContestantDTO';
 import { EventDTO } from '../../../shared/EventDTO';
 import { Request } from '../Utils/GatewayFunctions';
 import { DataOperationResult } from '../../../shared/OperationResult';
@@ -15,6 +15,7 @@ export class EventSummary {
     public Rounds: RoundDTO[];
     public CurrentRound: KnockoutObservable<RoundDTO> = ko.observable<RoundDTO>();
     public IncrementRoundText: KnockoutComputed<string>;
+    public IncrementRoundCSS: KnockoutComputed<string>;
     public NextRoundNumber: KnockoutComputed<number>;
 
     public CurrentRoundUpdater: BusyTracker = new BusyTracker();
@@ -23,12 +24,16 @@ export class EventSummary {
         this.LoadEvent(dto);
 
         this.NextRoundNumber = ko.computed(() => {
-            return this.Rounds
-                .filter(r => !r.IsFinished)
-                .map(r => r.RoundNumber)
-                .reduce((prev, cur) => {
-                    return prev < cur ? prev : cur;
-                });
+            const rounds = this.Rounds
+                .filter(r => !r.IsFinished);
+            if (rounds.length > 0) {
+                return rounds.map(r => r.RoundNumber)
+                    .reduce((prev, cur) => {
+                        return prev < cur ? prev : cur;
+                    });
+            } else {
+                return 0;
+            }
         });
 
         this.IncrementRoundText = ko.computed(() => {
@@ -36,18 +41,44 @@ export class EventSummary {
                 return `End Round ${this.CurrentRound().RoundNumber}`;
             }
             else if (this.Rounds.some(r => !r.IsFinished)) {
-                const nextRound = this.Rounds
-                    .filter(r => !r.IsFinished)
-                    .map(r => r.RoundNumber)
-                    .reduce((prev, cur) => {
-                        return prev < cur ? prev : cur;
-                    });
-                if (nextRound != 0) {
-                    return `Begin Round ${nextRound}`;
+                const rounds = this.Rounds
+                    .filter(r => !r.IsFinished);
+
+                if (rounds.length > 0) {
+                    const nextRound = rounds.map(r => r.RoundNumber)
+                        .reduce((prev, cur) => {
+                            return prev < cur ? prev : cur;
+                        });
+                    if (nextRound != 0) {
+                        return `Begin Round ${nextRound}`;
+                    }
                 }
             }
             else {
                 return `Finished!`;
+            }
+        });
+
+        this.IncrementRoundCSS = ko.computed(() => {
+            if (this.CurrentRound()) {
+                return `btn-danger`;
+            }
+            else if (this.Rounds.some(r => !r.IsFinished)) {
+                const rounds = this.Rounds
+                    .filter(r => !r.IsFinished);
+
+                if (rounds.length > 0) {
+                    const nextRound = rounds.map(r => r.RoundNumber)
+                        .reduce((prev, cur) => {
+                            return prev < cur ? prev : cur;
+                        });
+                    if (nextRound != 0) {
+                        return `btn-success`;
+                    }
+                }
+            }
+            else {
+                return `btn-default`;
             }
         });
     }

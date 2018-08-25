@@ -32,44 +32,15 @@
     class Contestant {
         constructor(dto) {
             this.Name = ko$1.observable();
-            this.ContestantNumber = ko$1.observable();
             this._id = dto._id;
             this.Name(dto.Name);
-            this.ContestantNumber(dto.ContestantNumber);
         }
         ToDTO() {
             const dto = {
                 _id: this._id,
                 Name: this.Name(),
-                ContestantNumber: this.ContestantNumber()
             };
             return dto;
-        }
-        OrderUpdated(idx) {
-            this.ContestantNumber(idx + 1);
-        }
-    }
-
-    class Round {
-        constructor(dto, AvailableContestants) {
-            this.AvailableContestants = AvailableContestants;
-            this.Contestants = ko.observableArray();
-            this.Visible = ko.observable(false);
-            this._id = dto._id;
-            this.RoundNumber = dto.RoundNumber;
-            this.Contestants(dto.Contestants
-                .map(c => AvailableContestants().find(ec => ec._id == c._id))
-                .filter(c => c != null));
-        }
-        ToggleVisible() {
-            this.Visible(!this.Visible());
-        }
-        ToDTO() {
-            return {
-                _id: this._id,
-                RoundNumber: this.RoundNumber,
-                Contestants: this.Contestants().map(c => c.ToDTO())
-            };
         }
     }
 
@@ -16345,6 +16316,68 @@
     unwrapExports(bson);
     var bson_1 = bson.ObjectId;
 
+    class RoundContestant {
+        constructor(contestant, dto) {
+            this.Enabled = ko$1.observable(false);
+            this.EaselNumber = ko$1.observable();
+            this.Detail = contestant;
+            this._id = dto ? dto._id : new bson_1().toHexString();
+            if (dto) {
+                this.Enabled(dto.Enabled || false);
+                this.EaselNumber(dto.EaselNumber);
+            }
+        }
+        ToDTO() {
+            const dto = {
+                _id: this._id,
+                Detail: this.Detail.ToDTO(),
+                Enabled: this.Enabled(),
+                EaselNumber: this.EaselNumber()
+            };
+            return dto;
+        }
+    }
+
+    class Round {
+        constructor(dto, AvailableContestants) {
+            this.AvailableContestants = AvailableContestants;
+            this.Contestants = ko.observableArray();
+            this.Visible = ko.observable(false);
+            this._id = dto._id;
+            this.RoundNumber = dto.RoundNumber;
+            this.Contestants(AvailableContestants().map(ac => {
+                const roundContestant = dto.Contestants.find(rc => rc.Detail._id == ac._id);
+                if (roundContestant) {
+                    return new RoundContestant(ac, roundContestant);
+                }
+                else {
+                    return new RoundContestant(ac);
+                }
+            }));
+            AvailableContestants.subscribe(available => {
+                this.Contestants(available.map(ac => {
+                    const roundContestant = this.Contestants().find(rc => rc.Detail === ac);
+                    if (roundContestant) {
+                        return roundContestant;
+                    }
+                    else {
+                        return new RoundContestant(ac);
+                    }
+                }));
+            });
+        }
+        ToggleVisible() {
+            this.Visible(!this.Visible());
+        }
+        ToDTO() {
+            return {
+                _id: this._id,
+                RoundNumber: this.RoundNumber,
+                Contestants: this.Contestants().map(c => c.ToDTO())
+            };
+        }
+    }
+
     class EventEditor {
         constructor(dto, _closeCallback) {
             this._closeCallback = _closeCallback;
@@ -16374,18 +16407,10 @@
             };
             return dto;
         }
-        ContestantOrderUpdated() {
-            this.Contestants().forEach((c, idx) => {
-                c.ContestantNumber(idx + 1);
-            });
-            this.Rounds().forEach((r) => {
-            });
-        }
         AddContestant() {
             this.Contestants.push(new Contestant({
                 _id: new bson_1().toHexString(),
-                Name: '',
-                ContestantNumber: this.Contestants().length + 1,
+                Name: ''
             }));
         }
         DeleteContestant(contestant) {
@@ -16484,30 +16509,58 @@
             this.CurrentRoundUpdater = new BusyTracker();
             this.LoadEvent(dto);
             this.NextRoundNumber = ko.computed(() => {
-                return this.Rounds
-                    .filter(r => !r.IsFinished)
-                    .map(r => r.RoundNumber)
-                    .reduce((prev, cur) => {
-                    return prev < cur ? prev : cur;
-                });
+                const rounds = this.Rounds
+                    .filter(r => !r.IsFinished);
+                if (rounds.length > 0) {
+                    return rounds.map(r => r.RoundNumber)
+                        .reduce((prev, cur) => {
+                        return prev < cur ? prev : cur;
+                    });
+                }
+                else {
+                    return 0;
+                }
             });
             this.IncrementRoundText = ko.computed(() => {
                 if (this.CurrentRound()) {
                     return `End Round ${this.CurrentRound().RoundNumber}`;
                 }
                 else if (this.Rounds.some(r => !r.IsFinished)) {
-                    const nextRound = this.Rounds
-                        .filter(r => !r.IsFinished)
-                        .map(r => r.RoundNumber)
-                        .reduce((prev, cur) => {
-                        return prev < cur ? prev : cur;
-                    });
-                    if (nextRound != 0) {
-                        return `Begin Round ${nextRound}`;
+                    const rounds = this.Rounds
+                        .filter(r => !r.IsFinished);
+                    if (rounds.length > 0) {
+                        const nextRound = rounds.map(r => r.RoundNumber)
+                            .reduce((prev, cur) => {
+                            return prev < cur ? prev : cur;
+                        });
+                        if (nextRound != 0) {
+                            return `Begin Round ${nextRound}`;
+                        }
                     }
                 }
                 else {
                     return `Finished!`;
+                }
+            });
+            this.IncrementRoundCSS = ko.computed(() => {
+                if (this.CurrentRound()) {
+                    return `btn-danger`;
+                }
+                else if (this.Rounds.some(r => !r.IsFinished)) {
+                    const rounds = this.Rounds
+                        .filter(r => !r.IsFinished);
+                    if (rounds.length > 0) {
+                        const nextRound = rounds.map(r => r.RoundNumber)
+                            .reduce((prev, cur) => {
+                            return prev < cur ? prev : cur;
+                        });
+                        if (nextRound != 0) {
+                            return `btn-success`;
+                        }
+                    }
+                }
+                else {
+                    return `btn-default`;
                 }
             });
         }

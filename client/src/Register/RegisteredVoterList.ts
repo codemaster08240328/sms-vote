@@ -13,7 +13,7 @@ export class RegisteredVoterList {
         this.LoadingTracker.AddOperation(Request<RegistrationDTO[]>(`/api/event/${eventId}/registrations`, 'GET')
             .then((dtos) => {
                 const registeredVoters: RegistrationDTO[] = dtos
-                .sort((a: RegistrationDTO, b: RegistrationDTO) => a.LastName.compareTo(b.LastName, true));
+                .sort((a: RegistrationDTO, b: RegistrationDTO) => a.PhoneNumber.compareTo(b.PhoneNumber, true));
                 this.Voters(registeredVoters);
             }));
         this.ConfigureComputed();
@@ -40,10 +40,10 @@ export class RegisteredVoterList {
                 const filter = this.Filter().toLocaleLowerCase();
                 const filteredVoters = this.Voters()
                     .filter(r => {
-                        return r.Email.toLocaleLowerCase().contains(filter) ||
-                            r.FirstName.toLocaleLowerCase().contains(filter) ||
-                            r.LastName.toLocaleLowerCase().contains(filter) ||
-                            r.PhoneNumber.toLocaleLowerCase().contains(filter);
+                        return (r.Email && r.Email.toLocaleLowerCase().contains(filter)) ||
+                            (r.FirstName && r.FirstName.toLocaleLowerCase().contains(filter)) ||
+                            (r.LastName && r.LastName.toLocaleLowerCase().contains(filter)) ||
+                            (r.PhoneNumber && r.PhoneNumber.toLocaleLowerCase().contains(filter));
                     });
                 return filteredVoters;
             } else {

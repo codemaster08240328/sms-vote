@@ -40,9 +40,9 @@ block content
                                         th EventId
                                         th Phone Number
                                         th Live
-                                        th 
-                                        th
                                         th Round
+                                        th Register
+                                        th Announce
                                         th Edit
                                         th Delete
                                 tbody
@@ -55,19 +55,19 @@ block content
                                         td
                                             input(type='checkbox', data-bind='enable: false, checked: Enabled')
                                         td
-                                            a(data-bind="attr: { href: '/event/' + _id + '/register' }")
-                                                span Register Voters
-                                        td
-                                            a(data-bind="attr: { href: '/event/' + _id + '/announce' }")
-                                                span Announce
-                                        td
-                                            button.btn.btn-default.btn-xs.ladda-button(type="button" data-style="zoom-in" data-size="xs" 
-                                                data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy")
-                                                span.ladda-label(data-bind="text: IncrementRoundText")
-                                        td
+                                            button.btn.btn-xs.ladda-button(type="button" data-style="zoom-in" data-size="xs" 
+                                                data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy, css: IncrementRoundCSS")
+                                                span.ladda-label(data-bind="text: IncrementRoundText") 
+                                        td.text-center
+                                            a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Register", data-bind="attr: { href: '/event/' + _id + '/register' }")
+                                                i.glyphicon.glyphicon-user
+                                        td.text-center
+                                            a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Announce", data-bind="attr: { href: '/event/' + _id + '/announce' }")
+                                                i.glyphicon.glyphicon-bullhorn
+                                        td.text-center
                                             button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parent.Edit(_id); }, disable: $parent.LoadingTracker.Busy")
                                                 i.glyphicon.glyphicon-pencil
-                                        td
+                                        td.text-center
                                             button.btn.btn-danger.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Delete", data-bind="click: function() { $parent.Delete($data); }, disable: $parent.LoadingTracker.Busy")
                                                 i.glyphicon.glyphicon-trash
                                     // /ko
@@ -106,7 +106,7 @@ block content
                                 table.table
                                     thead
                                         tr
-                                            th Easel
+                                            th #
                                             th Name
                                             th
                                             // th Sort
@@ -132,32 +132,37 @@ block content
         .row
             .col-sm-ofset-1.col-sm-6
                 h3 Rounds
-                table.table
-                    thead
-                        th #
-                        th Artists
-                    tbody
-                        // ko foreach: Rounds
-                        tr
-                            td.col-sm-1
-                                strong(data-bind="text: RoundNumber")
-                            td.col-sm-2
-                                // ko if: AvailableContestants().length > 0
-                                form
-                                    // ko foreach: AvailableContestants
-                                
-                                    .checkbox
-                                        label
-                                            input(type="checkbox", data-bind="checked: $parent.Contestants, checkedValue: $data")
-                                            // ko text: Name
-                                            // /ko
-                                    // /ko
-                                // /ko
-                                
-                                // ko ifnot: AvailableContestants().length > 0
-                                span Enter event contestants above
+                // ko foreach: Rounds
+                .row
+                    .col-sm-12
+                        // ko if: Contestants().length > 0
+                        table.table
+                            thead
+                                th.col-sm-3(data-bind="text: '# ' + RoundNumber")
+                                th.col-sm-offset-1.col-sm-4 Artist
+                                th.col-sm-2 Easel #
+                            tbody
+                                // ko foreach: Contestants
+                                tr
+                                    td
+                                    td
+                                        .checkbox
+                                            label
+                                                input(type="checkbox", data-bind="checked: Enabled") 
+                                                | &nbsp;
+                                                // ko text: Detail.Name
+                                                // /ko
+                                    td
+                                        // ko if: Enabled
+                                        input.input-sm.form-control(type="number", data-bind="value: EaselNumber", placeholder="Easel")
+                                        // /ko
                                 // /ko
                         // /ko
+                    
+                    // ko ifnot: Contestants().length > 0
+                    span Enter event contestants above
+                    // /ko
+                // /ko
         .row
             .col-sm-offset-4.col-sm-2
                 button.btn.btn-primary.btn-sm(data-bind='click: AddRound')
