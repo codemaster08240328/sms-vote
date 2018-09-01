@@ -92,14 +92,14 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
         res.send('<Response><Sms>Voting is now closed.</Sms></Response>');
         return;
     }
-    else if (!utils.testint(body)) {
-        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
-        res.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
-        return;
-    }
     else if (!event.CurrentRound) {
         console.log(`No round is currently selected for event: ${event.Name}`);
         res.send('<Response><Sms>Voting is currently closed.</Sms></Response>');
+        return;
+    }
+    else if (!utils.testint(body)) {
+        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
+        res.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
         return;
     }
 
@@ -164,7 +164,9 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
         dto.Contestants.map(contestant => ContestantModel.findByIdAndUpdate(contestant._id, contestant, { upsert: true }).exec())
             .forEach(async promise => await promise);
 
-        let event = await EventModel.findById(dto._id);
+        let event: EventDocument = await EventModel
+            .findById(dto._id)
+            .exec();
 
         if (!event) {
             const eventDTO: EventDTO = dto as EventDTO;
@@ -183,7 +185,8 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
             };
             res.json(result);
         } else {
-            event = await EventModel.findByIdAndUpdate(dto._id, dto, { upsert: true });
+            event.edit(dto);
+            savedEvent = await event.save();
             const result: DataOperationResult<EventDTO> = {
                 Success: true,
                 Data: savedEvent
