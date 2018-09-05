@@ -9,7 +9,7 @@ import * as utils from '../utils';
 import { DataOperationResult, OperationResult, CreateOperationResult } from '../../../shared/OperationResult';
 import { nextTick } from 'q/index';
 import * as Twilio from 'twilio';
-import { IsPhoneNumber } from '../utils';
+import { IsPhoneNumber, SanitizePhoneNumber } from '../utils';
 
 export let getAnnounce = async (req: Request, res: Response) => {
     const event = await EventModel.findById(req.params.eventId);
@@ -85,10 +85,17 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
 
     if (!event) {
         console.log(`No event is configured at this number: ${to}`);
-        res.send('<Response><Sms>Sorry! No event is currently running at this number. Please check the number and try again.</Sms></Response>');
+        res.send('<Response><Sms>No event is currently running at this number. Please check the number and try again.</Sms></Response>');
         return;
     }
-    else if (!event.Enabled) {
+
+    const voterRegistration = event.Registrations.find(r => r.PhoneNumber == from);
+
+    if (!voterRegistration) {
+        console.log('Phone number is not registered to vote in this event');
+        res.send(`<Response><Sms>This number is not yet registered for this event. Please register and try again.</Sms></Response>`);
+        return;
+    } else if (!event.Enabled) {
         res.send('<Response><Sms>Voting is now closed.</Sms></Response>');
         return;
     }
@@ -97,35 +104,28 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
         res.send('<Response><Sms>Voting is currently closed.</Sms></Response>');
         return;
     }
-    else if (!utils.testint(body)) {
-        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
-        res.send('<Response><Sms>Sorry, invalid vote. Please text a number between 1 and ' + event.Contestants.length + '</Sms></Response>');
+
+    if (event.hasVoted(from)) {
+        console.log('Denying vote: ' + event.Name + ', ' + from + ' - Already voted');
+        res.send('<Response><Sms>You are only allowed to vote once per round.</Sms></Response>');
         return;
     }
 
     const availableOptions = event.CurrentRound.Contestants.map(c => c.EaselNumber);
     const availableOptionsString = availableOptions.join(', ');
+    if (!utils.testint(body)) {
+        console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);
+        res.send(`<Response><Sms>Invalid vote. Please choose one of the following options: ${availableOptionsString} </Sms></Response>`);
+        return;
+    }
+
     const vote = parseInt(body);
+
     if (!availableOptions.contains(vote) ) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body + ', Available Options: ' + availableOptionsString);
-        res.send(`<Response><Sms>Sorry, invalid vote. Please choose one of the following options: ${availableOptionsString} </Sms></Response>`);
+        res.send(`<Response><Sms>Invalid vote. Please choose one of the following options: ${availableOptionsString} </Sms></Response>`);
         return;
-    }
-
-    const voterRegistration = event.Registrations.find(r => r.PhoneNumber == from);
-
-    if (!voterRegistration) {
-        console.log('Phone number is not registered to vote in this event');
-        res.send(`<Response><Sms>Sorry, this number is not registered for this event.</Sms></Response>`);
-        return;
-    }
-
-    if (event.hasVoted(from)) {
-        console.log('Denying vote: ' + event.Name + ', ' + from + ' - Already voted');
-        res.send('<Response><Sms>Sorry, you are only allowed to vote once per round.</Sms></Response>');
-        return;
-    }
-    else {
+    } else {
         const choice = parseInt(body);
         const registration = event.Registrations.find(r => r.PhoneNumber == from);
 
@@ -160,6 +160,8 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
             console.error(error);
             throw error;
         }
+
+        dto.PhoneNumber = SanitizePhoneNumber(dto.PhoneNumber);
 
         dto.Contestants.map(contestant => ContestantModel.findByIdAndUpdate(contestant._id, contestant, { upsert: true }).exec())
             .forEach(async promise => await promise);

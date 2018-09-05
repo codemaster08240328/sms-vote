@@ -23,9 +23,12 @@ export function IsPhoneNumber(str: string): boolean {
 }
 
 export function SanitizePhoneNumber(str: string): string {
-  if (/^1\d{10}/.test(str)) {
-    return str;
-  } else {
-    return `1${str}`;
-  }
+    if (str.startsWith('+')) {
+        str = str.replace(/D/g, '');
+    }
+    if (/^1\d{10}/.test(str)) {
+        return str;
+    } else {
+        return `1${str}`;
+    }
 }
