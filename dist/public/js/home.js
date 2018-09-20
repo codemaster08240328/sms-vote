@@ -16382,10 +16382,11 @@
         constructor(dto, _closeCallback) {
             this._closeCallback = _closeCallback;
             this.Name = ko.observable();
+            this.PhoneNumber = ko.observable();
+            this.RegistrationMessage = ko.observable();
             this.Enabled = ko.observable();
             this.Contestants = ko.observableArray();
             this.Rounds = ko.observableArray();
-            this.PhoneNumber = ko.observable();
             this.CurrentRound = ko.observable();
             this._id = dto._id;
             this.Name(dto.Name);
@@ -16403,7 +16404,8 @@
                 Contestants: this.Contestants().map((c) => c.ToDTO()),
                 PhoneNumber: this.PhoneNumber(),
                 Rounds: this.Rounds().map((r) => r.ToDTO()),
-                CurrentRound: this.CurrentRound() && this.CurrentRound().ToDTO()
+                CurrentRound: this.CurrentRound() && this.CurrentRound().ToDTO(),
+                RegistrationConfirmationMessage: this.RegistrationMessage()
             };
             return dto;
         }
@@ -16597,6 +16599,7 @@
                 PhoneNumber: '',
                 Rounds: [],
                 CurrentRound: null,
+                RegistrationConfirmationMessage: ''
             }, (result) => {
                 if (result) {
                     this.LoadEvents();

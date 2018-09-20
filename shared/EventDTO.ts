@@ -10,6 +10,7 @@ export declare interface EventConfigDTO {
     Rounds: RoundConfigDTO[];
     PhoneNumber: string;
     CurrentRound: RoundConfigDTO;
+    RegistrationConfirmationMessage: string;
 }
 
 export declare interface EventDTO extends EventConfigDTO {

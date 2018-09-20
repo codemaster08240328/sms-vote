@@ -27,6 +27,7 @@ export class HomeScreenViewModel {
             PhoneNumber: '',
             Rounds: [],
             CurrentRound: null,
+            RegistrationConfirmationMessage: ''
         },
         (result) => {
             if (result) {

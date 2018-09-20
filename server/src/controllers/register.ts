@@ -7,6 +7,7 @@ import { EventDocument } from '../models/Event';
 import EventModel from '../models/Event';
 import * as mongoose from 'mongoose';
 import { IsPhoneNumber, SanitizePhoneNumber } from '../utils';
+import * as Twilio from 'twilio';
 
 /**
  * GET /
@@ -85,6 +86,13 @@ export const registerVoter = async (req: Request, res: Response, next: NextFunct
             Success: true,
             Data: registration
         };
+
+        const twilioClient = Twilio();
+        twilioClient.messages.create({
+            from: event.PhoneNumber,
+            to: dto.PhoneNumber,
+            body: event.RegistrationConfirmationMessage
+        });
 
         console.log(`Successfully registered ${dto.FirstName} ${dto.LastName} - ${dto.PhoneNumber}`);
         res.json(result);

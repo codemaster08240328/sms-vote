@@ -12,10 +12,11 @@ import { ObjectId } from 'bson';
 export class EventEditor {
 
     public Name: KnockoutObservable<string> = ko.observable<string>();
+    public PhoneNumber: KnockoutObservable<string> = ko.observable<string>();
+    public RegistrationMessage: KnockoutObservable<string> = ko.observable<string>();
     public Enabled: KnockoutObservable<boolean> = ko.observable<boolean>();
     public Contestants: KnockoutObservableArray<Contestant> = ko.observableArray<Contestant>();
     public Rounds: KnockoutObservableArray<Round> = ko.observableArray<Round>();
-    public PhoneNumber: KnockoutObservable<string> = ko.observable<string>();
     public CurrentRound: KnockoutObservable<Round> = ko.observable<Round>();
     public DisplayContestants: KnockoutComputed<string>;
 
@@ -40,7 +41,8 @@ export class EventEditor {
             Contestants: this.Contestants().map((c) => c.ToDTO()),
             PhoneNumber: this.PhoneNumber(),
             Rounds: this.Rounds().map((r) => r.ToDTO()),
-            CurrentRound: this.CurrentRound() && this.CurrentRound().ToDTO()
+            CurrentRound: this.CurrentRound() && this.CurrentRound().ToDTO(),
+            RegistrationConfirmationMessage: this.RegistrationMessage()
         };
         return dto;
     }

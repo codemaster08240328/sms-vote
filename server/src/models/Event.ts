@@ -33,7 +33,8 @@ const EventSchema: mongoose.Schema = new mongoose.Schema({
     PhoneNumber: String,
     Registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Registration' }],
     CurrentRound: RoundSchema,
-    Enabled: Boolean
+    Enabled: Boolean,
+    RegistrationConfirmationMessage: String
 });
 
 EventSchema.methods.hasVoted = function(phoneNumber: string): boolean {
@@ -47,6 +48,7 @@ EventSchema.methods.edit = function(dto: EventDTO): void {
     thisEvent.Name = dto.Name;
     thisEvent.PhoneNumber = dto.PhoneNumber;
     thisEvent.Contestants = dto.Contestants;
+    thisEvent.RegistrationConfirmationMessage = dto.RegistrationConfirmationMessage;
     thisEvent.Enabled = dto.Enabled;
     const roundIds = dto.Rounds.map(r => r._id);
     thisEvent.Rounds = thisEvent.Rounds.filter(r => roundIds.contains((<any>r).id));

@@ -38,8 +38,8 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 import * as homeController from './controllers/home';
 import * as userController from './controllers/user';
 import * as contactController from './controllers/contact';
-import * as registrationController from './controllers/register';
 import * as eventController from './controllers/event';
+import * as registrationController from './controllers/register';
 import * as resultsController from './controllers/results';
 
 /**
@@ -147,7 +147,7 @@ app.post('/account/delete', passportConfig.isAuthenticated, userController.postD
  * Primary app routes.
  */
 app.get('/', homeController.index);
-app.get('/event/:eventId/results', resultsController.index);
+app.get('/event/:eventId/results', passportConfig.isAuthenticated, resultsController.index);
 app.get('/event/:eventId/register', passportConfig.isAuthenticated, registrationController.index);
 app.get('/event/:eventId/announce', passportConfig.isAuthenticated, eventController.getAnnounce);
 app.post('/event/:eventId/announce', passportConfig.isAuthenticated, eventController.announce);
