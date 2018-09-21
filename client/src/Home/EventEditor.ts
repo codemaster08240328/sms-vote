@@ -29,6 +29,7 @@ export class EventEditor {
         this.Contestants(dto.Contestants.map(c => new Contestant(c)));
         this.Rounds(dto.Rounds.map(r => new Round(r, this.Contestants)));
         this.PhoneNumber(dto.PhoneNumber);
+        this.RegistrationMessage(dto.RegistrationConfirmationMessage);
 
         this.DisplayContestants = ko.computed(() => this.Contestants().map(c => c.Name).join(', '));
     }
