@@ -130,7 +130,7 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
         const registration = event.Registrations.find(r => r.PhoneNumber == from);
 
         const votedFor = event.CurrentRound.Contestants
-            .find(c => c.EaselNumber === choice);
+            .find(c => c.EaselNumber === choice && c.Enabled);
         votedFor.Votes.push(registration);
 
         event.save((err) => {

@@ -61,8 +61,12 @@ EventSchema.methods.edit = function(dto: EventDTO): void {
             c.EaselNumber = contestantDto.EaselNumber;
             c.Enabled = contestantDto.Enabled;
         });
+        const existingContestantIds = r.Contestants.map(c => (<any>c).id);
+        const newContestants = roundDto.Contestants.filter(cdto => !existingContestantIds.contains(cdto._id));
+        r.Contestants.addRange(newContestants);
     });
-    const newRounds = dto.Rounds.filter(rdto => !thisEvent.Rounds.map(r => (<any>r).id).contains(rdto._id));
+    const existingEventIds = thisEvent.Rounds.map(r => (<any>r).id);
+    const newRounds = dto.Rounds.filter(rdto => !existingEventIds.contains(rdto._id));
     thisEvent.Rounds.addRange(newRounds);
 };
 
