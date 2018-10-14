@@ -111,7 +111,9 @@ export const voteSMS = async (req: Request, res: Response, next: NextFunction) =
         return;
     }
 
-    const availableOptions = event.CurrentRound.Contestants.map(c => c.EaselNumber);
+    const availableOptions = event.CurrentRound.Contestants
+        .filter(c => c.Enabled && c.EaselNumber)
+        .map(c => c.EaselNumber);
     const availableOptionsString = availableOptions.join(', ');
     if (!utils.testint(body)) {
         console.log('Bad vote: ' + event.Name + ', ' + from + ', ' + body);

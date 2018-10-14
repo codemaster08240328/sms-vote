@@ -43,7 +43,7 @@ EventSchema.methods.hasVoted = function(phoneNumber: string): boolean {
             .find(n => n === phoneNumber) ? true : false;
     };
 
-EventSchema.methods.edit = function(dto: EventDTO): void {
+EventSchema.methods.edit = function EditEvent(dto: EventDTO): void {
     const thisEvent = (<EventDocument>this);
     thisEvent.Name = dto.Name;
     thisEvent.PhoneNumber = dto.PhoneNumber;
@@ -65,10 +65,28 @@ EventSchema.methods.edit = function(dto: EventDTO): void {
         const newContestants = roundDto.Contestants.filter(cdto => !existingContestantIds.contains(cdto._id));
         r.Contestants.addRange(newContestants);
     });
+
+    const currentRound = thisEvent.CurrentRound;
+    if (currentRound) {
+        const roundDto = dto.Rounds.find(x => x._id == (<any>currentRound).id);
+        const contestantIds = roundDto.Contestants.map(c => c._id);
+        currentRound.Contestants = currentRound.Contestants.filter(c => contestantIds.contains((<any>c).id));
+        currentRound.Contestants.forEach(c => {
+            const contestantDto = roundDto.Contestants.find(x => x._id == (<any>c).id);
+            c.EaselNumber = contestantDto.EaselNumber;
+            c.Enabled = contestantDto.Enabled;
+        });
+        const existingContestantIds = currentRound.Contestants.map(c => (<any>c).id);
+        const newContestants = roundDto.Contestants.filter(cdto => !existingContestantIds.contains(cdto._id));
+        currentRound.Contestants.addRange(newContestants);
+    }
+
     const existingEventIds = thisEvent.Rounds.map(r => (<any>r).id);
     const newRounds = dto.Rounds.filter(rdto => !existingEventIds.contains(rdto._id));
     thisEvent.Rounds.addRange(newRounds);
 };
+
+
 
 const EventModel = mongoose.model<EventDocument>('Event', EventSchema);
 export default EventModel;
