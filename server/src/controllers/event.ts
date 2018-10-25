@@ -152,6 +152,7 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
     console.log(`Saving event: ${dto.Name}`);
     let savedEvent: EventDocument;
     try {
+        dto.PhoneNumber = dto.PhoneNumber.trim();
         if (!dto.PhoneNumber) {
             const error = 'Invalid event record. No PhoneNumber provided.';
             console.error(error);

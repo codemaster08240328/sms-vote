@@ -44,7 +44,7 @@ block content
                                         th Register
                                         th Announce
                                         th Edit
-                                        th Delete
+                                        // th Delete
                                 tbody
                                     // ko foreach: Events
                                     tr
@@ -67,9 +67,9 @@ block content
                                         td.text-center
                                             button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parent.Edit(_id); }, disable: $parent.LoadingTracker.Busy")
                                                 i.glyphicon.glyphicon-pencil
-                                        td.text-center
-                                            button.btn.btn-danger.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Delete", data-bind="click: function() { $parent.Delete($data); }, disable: $parent.LoadingTracker.Busy")
-                                                i.glyphicon.glyphicon-trash
+                                        //- td.text-center
+                                        //-     button.btn.btn-danger.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Delete", data-bind="click: function() { $parent.Delete($data); }, disable: $parent.LoadingTracker.Busy")
+                                        //-         i.glyphicon.glyphicon-trash
                                     // /ko
                     .row
                         .col-sm-offset-11.col-sm-1
