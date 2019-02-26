@@ -163,7 +163,9 @@ block content
                                     button.btn.btn-sm.btn-danger.pull-right.space(data-bind='click: ArchiveConfirm') Confirm
         .row(data-bind="ifnot: ShowArchiveMessage")
             .col-sm-12
+                // ko if: !IsNew() && Enabled()
                 button.btn.btn-danger.space(data-bind='click: Archive') Archive
+                // /ko 
                 button.btn.btn-default.pull-right.space(data-bind='click: Cancel') Cancel
                 button.btn.btn-primary.pull-right.space(data-bind='click: Save') Save
         // /ko

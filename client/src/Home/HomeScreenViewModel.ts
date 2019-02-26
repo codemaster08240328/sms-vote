@@ -36,6 +36,8 @@ export class HomeScreenViewModel {
             }
             this.Editor(null);
         }));
+
+        this.Editor().IsNew(true);
     }
 
     public async Edit(eventId: string) {

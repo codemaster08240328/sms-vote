@@ -16387,6 +16387,7 @@
             this.Enabled = ko.observable(true);
             this.CurrentRound = ko.observable();
             this.ShowArchiveMessage = ko.observable(false);
+            this.IsNew = ko.observable(false);
             this.Contestants = ko.observableArray();
             this.Rounds = ko.observableArray();
             this._id = dto._id;
@@ -16621,6 +16622,7 @@
                 }
                 this.Editor(null);
             }));
+            this.Editor().IsNew(true);
         }
         async Edit(eventId) {
             const event = await this.LoadingTracker.AddOperation(Request(`api/event/${eventId}`, 'GET'));

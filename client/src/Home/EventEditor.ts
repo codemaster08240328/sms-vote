@@ -17,11 +17,13 @@ export class EventEditor {
     public Enabled: KnockoutObservable<boolean> = ko.observable<boolean>(true);
     public CurrentRound: KnockoutObservable<Round> = ko.observable<Round>();
     public ShowArchiveMessage: KnockoutObservable<boolean> = ko.observable<boolean>(false);
+    public IsNew: KnockoutObservable<boolean> = ko.observable<boolean>(false);
 
     public Contestants: KnockoutObservableArray<Contestant> = ko.observableArray<Contestant>();
     public Rounds: KnockoutObservableArray<Round> = ko.observableArray<Round>();
 
     public DisplayContestants: KnockoutComputed<string>;
+
 
     private _id: string;
 

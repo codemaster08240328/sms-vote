@@ -272,7 +272,7 @@ export const getEvent = async (req: Request, res: Response, next: NextFunction) 
             .populate('CurrentRound.Contestants.Votes')
             .exec();
 
-        if (event.Enabled || (!user.isAdmin && !event.Enabled)) {
+        if (event.Enabled || (user.isAdmin && !event.Enabled)) {
             res.json(event);
         }
     }
