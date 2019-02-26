@@ -43,7 +43,7 @@ EventSchema.methods.hasVoted = function(phoneNumber: string): boolean {
             .find(n => n === phoneNumber) ? true : false;
     };
 
-EventSchema.methods.edit = function EditEvent(dto: EventDTO): void {
+EventSchema.methods.edit = function(dto: EventDTO): void {
     const thisEvent = (<EventDocument>this);
     thisEvent.Name = dto.Name;
     thisEvent.PhoneNumber = dto.PhoneNumber.trim();

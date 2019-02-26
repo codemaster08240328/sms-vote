@@ -2,37 +2,20 @@ import * as bcrypt from 'bcrypt-nodejs';
 import * as crypto from 'crypto';
 import * as mongoose from 'mongoose';
 
-export type UserModel = mongoose.Document & {
-  email: string,
-  password: string,
-  passwordResetToken: string,
-  passwordResetExpires: Date,
+import { UserDTO } from '../../../shared/UserDTO';
 
-  facebook: string,
-  tokens: AuthToken[],
+export interface UserDocument extends UserDTO, mongoose.Document {
+  comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void;
+  gravatar: (size: number) => string;
+}
 
-  profile: {
-    name: string,
-    gender: string,
-    location: string,
-    website: string,
-    picture: string
-  },
-
-  comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void,
-  gravatar: (size: number) => string
-};
-
-export type AuthToken = {
-  accessToken: string,
-  kind: string
-};
-
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
+
+  isAdmin: Boolean,
 
   facebook: String,
   twitter: String,
@@ -51,8 +34,8 @@ const userSchema = new mongoose.Schema({
 /**
  * Password hash middleware.
  */
-userSchema.pre('save', function save(next) {
-  const user = <mongoose.Document & UserModel>this;
+UserSchema.pre('save', function save(next) {
+  const user = <mongoose.Document & UserDocument>this;
   if (!user.isModified('password')) { return next(); }
   bcrypt.genSalt(10, (err, salt) => {
     if (err) { return next(err); }
@@ -64,7 +47,7 @@ userSchema.pre('save', function save(next) {
   });
 });
 
-userSchema.methods.comparePassword = function (candidatePassword: string, cb: (err: any, isMatch: any) => {}) {
+UserSchema.methods.comparePassword = function (candidatePassword: string, cb: (err: any, isMatch: any) => {}) {
   bcrypt.compare(candidatePassword, this.password, (err: mongoose.Error, isMatch: boolean) => {
     cb(err, isMatch);
   });
@@ -74,7 +57,7 @@ userSchema.methods.comparePassword = function (candidatePassword: string, cb: (e
 /**
  * Helper method for getting user's gravatar.
  */
-userSchema.methods.gravatar = function (size: number) {
+UserSchema.methods.gravatar = function (size: number) {
   if (!size) {
     size = 200;
   }
@@ -85,6 +68,6 @@ userSchema.methods.gravatar = function (size: number) {
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 };
 
-// export const User: UserType = mongoose.model<UserType>('User', userSchema);
-const User = mongoose.model('User', userSchema);
-export default User;
+const UserModel = mongoose.model<UserDocument>('User', UserSchema);
+// const User = mongoose.model('User', userSchema);
+export default UserModel;

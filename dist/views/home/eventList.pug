@@ -1,0 +1,37 @@
+table.table.table-hover
+    thead
+        tr
+            th EventId
+            th Phone Number
+            th Live
+            th Round
+            th Register
+            th Announce
+            th Edit
+            // th Delete
+    tbody
+        // ko foreach: $data
+        tr
+            td
+                a(data-bind="attr: { href: '/event/' + _id + '/results' }")
+                    span(data-bind='text: Name')
+            td(data-bind='text: PhoneNumber')
+            td
+                input(type='checkbox', data-bind='enable: false, checked: Enabled')
+            td
+                button.btn.btn-xs.ladda-button(type="button" data-style="zoom-in" data-size="xs" 
+                    data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy, css: IncrementRoundCSS")
+                    span.ladda-label(data-bind="text: IncrementRoundText") 
+            td.text-center
+                a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Register", data-bind="attr: { href: '/event/' + _id + '/register' }")
+                    i.glyphicon.glyphicon-user
+            td.text-center
+                a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Announce", data-bind="attr: { href: '/event/' + _id + '/announce' }")
+                    i.glyphicon.glyphicon-bullhorn
+            td.text-center
+                button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parent.Edit(_id); }, disable: $parent.LoadingTracker.Busy")
+                    i.glyphicon.glyphicon-pencil
+            //- td.text-center
+            //-     button.btn.btn-danger.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Delete", data-bind="click: function() { $parent.Delete($data); }, disable: $parent.LoadingTracker.Busy")
+            //-         i.glyphicon.glyphicon-trash
+        // /ko

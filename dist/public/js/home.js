@@ -16384,7 +16384,7 @@
             this.Name = ko.observable();
             this.PhoneNumber = ko.observable();
             this.RegistrationMessage = ko.observable();
-            this.Enabled = ko.observable();
+            this.Enabled = ko.observable(true);
             this.Contestants = ko.observableArray();
             this.Rounds = ko.observableArray();
             this.CurrentRound = ko.observable();
@@ -16586,7 +16586,8 @@
 
     class HomeScreenViewModel {
         constructor() {
-            this.Events = ko$1.observableArray();
+            this.ActiveEvents = ko$1.observableArray();
+            this.ArchivedEvents = ko$1.observableArray();
             this.Editor = ko$1.observable();
             this.LoadingTracker = new BusyTracker();
             this.LoadEvents();
@@ -16595,7 +16596,7 @@
             this.Editor(new EventEditor({
                 _id: new bson_1().toHexString(),
                 Name: '',
-                Enabled: false,
+                Enabled: true,
                 Contestants: [],
                 PhoneNumber: '',
                 Rounds: [],
@@ -16620,13 +16621,19 @@
         async Delete(event) {
             const result = await Request(`api/event/${event._id}`, 'DELETE');
             if (result.Success) {
-                this.Events.remove(event);
+                this.ActiveEvents.remove(event);
+                this.ArchivedEvents.remove(event);
             }
         }
         async LoadEvents() {
             return this.LoadingTracker.AddOperation(Request('api/events', 'GET')
                 .then((dtos) => {
-                this.Events(dtos.map(e => new EventSummary(e)));
+                this.ActiveEvents(dtos
+                    .filter(e => e.Enabled == true)
+                    .map(e => new EventSummary(e)));
+                this.ArchivedEvents(dtos
+                    .filter(e => e.Enabled == true)
+                    .map(e => new EventSummary(e)));
             }));
         }
     }

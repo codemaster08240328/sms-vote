@@ -10,15 +10,17 @@ import { DataOperationResult, OperationResult, CreateOperationResult } from '../
 import { nextTick } from 'q/index';
 import * as Twilio from 'twilio';
 import { IsPhoneNumber, SanitizePhoneNumber } from '../utils';
+import { default as User, UserDocument } from '../models/User';
+import { AuthToken } from '../../../shared/UserDTO';
 
-export let getAnnounce = async (req: Request, res: Response) => {
+export async function getAnnounce(req: Request, res: Response) {
     const event = await EventModel.findById(req.params.eventId);
     res.render('announce', {
         title: 'Announcement',
         EventName: event.Name,
         EventId: event._id
     });
-  };
+  }
 
 export const announce = async (req: Request, res: Response, next: NextFunction) => {
     console.log(`announce() called at ${new Date().toISOString()}`);
@@ -220,13 +222,19 @@ export const deleteEvent = (req: Request, res: Response, next: NextFunction) => 
 
 export const getEvents = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const events: EventDocument[] = await EventModel.find()
+        const user: UserDocument = await User.findById(req.user.id);
+
+        let query = EventModel.find()
             .populate('Contestants')
             .populate('Rounds.Contestants.Detail')
             .populate('Rounds.Contestants.Votes')
             .populate('CurrentRound.Contestants.Detail')
-            .populate('CurrentRound.Contestants.Votes')
-            .exec();
+            .populate('CurrentRound.Contestants.Votes');
+
+        if (!user.isAdmin) {
+            query = query.where('Enabled').equals(true);
+        }
+        const events: EventDocument[] = await query.exec();
 
         res.json(events);
     }
@@ -238,6 +246,8 @@ export const getEvents = async (req: Request, res: Response, next: NextFunction)
 export const getEvent = async (req: Request, res: Response, next: NextFunction) => {
     let event: EventDocument;
     try {
+        const user: UserDocument = await User.findById(req.user.id);
+
         event = await EventModel
             .findById(req.params.eventId)
             .populate('Contestants')
@@ -247,7 +257,9 @@ export const getEvent = async (req: Request, res: Response, next: NextFunction) 
             .populate('CurrentRound.Contestants.Votes')
             .exec();
 
-        res.json(event);
+        if (event.Enabled || (!user.isAdmin && !event.Enabled)) {
+            res.json(event);
+        }
     }
     catch (err) {
         return next(err);

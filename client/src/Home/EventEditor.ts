@@ -14,7 +14,7 @@ export class EventEditor {
     public Name: KnockoutObservable<string> = ko.observable<string>();
     public PhoneNumber: KnockoutObservable<string> = ko.observable<string>();
     public RegistrationMessage: KnockoutObservable<string> = ko.observable<string>();
-    public Enabled: KnockoutObservable<boolean> = ko.observable<boolean>();
+    public Enabled: KnockoutObservable<boolean> = ko.observable<boolean>(true);
     public Contestants: KnockoutObservableArray<Contestant> = ko.observableArray<Contestant>();
     public Rounds: KnockoutObservableArray<Round> = ko.observableArray<Round>();
     public CurrentRound: KnockoutObservable<Round> = ko.observable<Round>();

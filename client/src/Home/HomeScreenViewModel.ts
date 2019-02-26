@@ -9,7 +9,8 @@ import EventSummary from './EventSummary';
 import { ObjectId } from 'bson';
 
 export class HomeScreenViewModel {
-    public Events: KnockoutObservableArray<EventSummary> = ko.observableArray<EventSummary>();
+    public ActiveEvents: KnockoutObservableArray<EventSummary> = ko.observableArray<EventSummary>();
+    public ArchivedEvents: KnockoutObservableArray<EventSummary> = ko.observableArray<EventSummary>();
     public Editor: KnockoutObservable<EventEditor> = ko.observable<EventEditor>();
 
     public LoadingTracker: BusyTracker = new BusyTracker();
@@ -22,7 +23,7 @@ export class HomeScreenViewModel {
         this.Editor(new EventEditor({
             _id: new ObjectId().toHexString(),
             Name: '',
-            Enabled: false,
+            Enabled: true,
             Contestants: [],
             PhoneNumber: '',
             Rounds: [],
@@ -50,14 +51,21 @@ export class HomeScreenViewModel {
     public async Delete(event: EventSummary) {
         const result = await Request<OperationResult>(`api/event/${event._id}`, 'DELETE');
         if (result.Success) {
-            this.Events.remove(event);
+            this.ActiveEvents.remove(event);
+            this.ArchivedEvents.remove(event);
         }
     }
 
     public async LoadEvents(): Promise<void> {
         return this.LoadingTracker.AddOperation(Request<EventDTO[]>('api/events', 'GET')
             .then((dtos) => {
-                this.Events(dtos.map(e => new EventSummary(e)));
+                this.ActiveEvents(dtos
+                    .filter(e => e.Enabled == true)
+                    .map(e => new EventSummary(e)));
+
+                this.ArchivedEvents(dtos
+                    .filter(e => e.Enabled == true)
+                    .map(e => new EventSummary(e)));
             }));
     }
 }
