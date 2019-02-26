@@ -35,7 +35,7 @@ block content
                 .panel.panel-primary
                     .row
                         .col-sm-offset-1.col-sm-10
-                            if (user.isAdmin)
+                            if (user && user.isAdmin)
                                 ul.nav.nav-tabs
                                     li.nav-item.active
                                         a.nav-link.active.show(data-toggle="tab", href="#active" aria-expanded="true") Active
