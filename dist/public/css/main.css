@@ -78,6 +78,10 @@ footer p {
     margin-bottom: 0
 }
 
+button.btn.space {
+    margin: 7px
+} 
+
 /* button.btn-default {
     margin-left: 7px
 }

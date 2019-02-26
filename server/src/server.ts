@@ -158,7 +158,7 @@ app.post('/event/:eventId/announce', passportConfig.isAuthenticated, eventContro
 app.get('/api/events', passportConfig.isAuthenticated, eventController.getEvents);
 app.get('/api/event/:eventId', passportConfig.isAuthenticated, eventController.getEvent);
 app.post('/api/event/', passportConfig.isAuthenticated, eventController.saveEvent);
-app.delete('/api/event/:eventId', passportConfig.isAuthenticated, eventController.deleteEvent);
+app.delete('/api/event/:eventId', passportConfig.isAuthenticated, eventController.archiveEvent);
 app.post('/api/event/:eventId/incrementround', passportConfig.isAuthenticated, eventController.incrementRound);
 app.post('/api/vote/sms', eventController.voteSMS);
 app.get('/api/event/:eventId/registrations', passportConfig.isAuthenticated, registrationController.getRegistrations);

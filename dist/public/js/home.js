@@ -16385,9 +16385,10 @@
             this.PhoneNumber = ko.observable();
             this.RegistrationMessage = ko.observable();
             this.Enabled = ko.observable(true);
+            this.CurrentRound = ko.observable();
+            this.ShowArchiveMessage = ko.observable(false);
             this.Contestants = ko.observableArray();
             this.Rounds = ko.observableArray();
-            this.CurrentRound = ko.observable();
             this._id = dto._id;
             this.Name(dto.Name);
             this.Enabled(dto.Enabled);
@@ -16435,6 +16436,18 @@
         async Save() {
             const dto = this.ToDTO();
             const result = await Request('api/event', 'POST', dto);
+            if (result.Success) {
+                window.location.reload();
+            }
+        }
+        Archive() {
+            this.ShowArchiveMessage(true);
+        }
+        ArchiveCancel() {
+            this.ShowArchiveMessage(false);
+        }
+        async ArchiveConfirm() {
+            const result = await Request(`api/event/${this._id}`, 'DELETE');
             if (result.Success) {
                 window.location.reload();
             }
@@ -16632,7 +16645,7 @@
                     .filter(e => e.Enabled == true)
                     .map(e => new EventSummary(e)));
                 this.ArchivedEvents(dtos
-                    .filter(e => e.Enabled == true)
+                    .filter(e => e.Enabled == false)
                     .map(e => new EventSummary(e)));
             }));
         }

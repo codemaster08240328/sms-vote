@@ -31,19 +31,19 @@ block content
     script#eventview(type="text/template")
         .row
             .col-sm-10
+                // ko ifnot: LoadingTracker.Busy
                 .panel.panel-primary
                     .row
                         .col-sm-offset-1.col-sm-10
-                            ul.nav.nav-tabs
-                                li.nav-item
-                                    a.nav-link.active.show(data-toggle="tab", href="#active")
-                                        Active
-                                li.nav-item
-                                    a.nav-link(data-toggle="tab", href="#archived")
+                            if (user.isAdmin)
+                                ul.nav.nav-tabs
+                                    li.nav-item.active
+                                        a.nav-link.active.show(data-toggle="tab", href="#active" aria-expanded="true") Active
+                                    li.nav-item
+                                        a.nav-link(data-toggle="tab", href="#archived") Archived
                             .tab-content
-                                #active.tab-pane.fade(data-bind="with: ActiveEvents")
+                                #active.tab-pane.active.in.fade(data-bind="with: ActiveEvents")
                                     include home/eventList.pug
-                            .tab-content
                                 #archived.tab-pane.fade(data-bind="with: ArchivedEvents")
                                     include home/eventList.pug
                     .row
@@ -51,6 +51,7 @@ block content
                             button.btn.btn-primary.btn-sm.pull-right(data-bind='click: AddNew')
                                 i.glyphicon.glyphicon-plus
                                 |  Add New Event
+                // /ko
 
     script#eventedit(type="text/template")
         // ko with: Editor
@@ -68,10 +69,6 @@ block content
                             label.col-sm-3.control-label(for='inputPhoneNumber') Phone Number
                             .col-sm-8
                                 input#inputPhoneNumber.form-control(type='tel', placeholder='PhoneNumber', data-bind='value: PhoneNumber')
-                        .form-group
-                            label.col-sm-3.control-label(for='chkEnabled') Enabled
-                            .col-sm-1
-                                input#chkEnabled.form-control.checkbox-inline(type='checkbox', data-bind='checked: Enabled')
                         .form-group
                             label.col-sm-3.control-label(for='inputVoteName') Registration Confirmation Message
                             .col-sm-8
@@ -147,10 +144,28 @@ block content
                 button.btn.btn-primary.btn-sm(data-bind='click: AddRound')
                     i.glyphicon.glyphicon-plus
                     |  Add New Round
-        .row
-            .col-sm-offset-10.col-sm-2
-                button.btn.btn-default.pull-right(data-bind='click: Cancel') Cancel
-                button.btn.btn-primary.pull-right(data-bind='click: Save') Save
+        hr.highlight
+        .row(data-bind="if: ShowArchiveMessage")
+            .col-xs-offset-1.col-xs-10
+                .panel.panel-danger
+                    .row
+                        .col-xs-offset-1.col-xs-10
+                            .row
+                                .col-sm-9.col-xs-12
+                                    h4
+                                        i.glyphicon.glyphicon-warning
+                                        | Are you sure you want to archive this event?
+                            .row
+                                .col-sm-7.col-xs-12
+                                    small Archived events are disabled and can only be viewed by administrators
+                                .col-sm-4.col-xs-12
+                                    button.btn.btn-sm.btn-default.pull-right.space(data-bind='click: ArchiveCancel') Cancel
+                                    button.btn.btn-sm.btn-danger.pull-right.space(data-bind='click: ArchiveConfirm') Confirm
+        .row(data-bind="ifnot: ShowArchiveMessage")
+            .col-sm-12
+                button.btn.btn-danger.space(data-bind='click: Archive') Archive
+                button.btn.btn-default.pull-right.space(data-bind='click: Cancel') Cancel
+                button.btn.btn-primary.pull-right.space(data-bind='click: Save') Save
         // /ko
 
 block append scripts

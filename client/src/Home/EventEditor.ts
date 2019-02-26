@@ -1,4 +1,4 @@
-import { DataOperationResult } from '../../../shared/OperationResult';
+import OperationResult, { DataOperationResult } from '../../../shared/OperationResult';
 import { Request } from '../Utils/GatewayFunctions';
 import { BusyTracker } from '../Utils/BusyTracker';
 
@@ -15,9 +15,12 @@ export class EventEditor {
     public PhoneNumber: KnockoutObservable<string> = ko.observable<string>();
     public RegistrationMessage: KnockoutObservable<string> = ko.observable<string>();
     public Enabled: KnockoutObservable<boolean> = ko.observable<boolean>(true);
+    public CurrentRound: KnockoutObservable<Round> = ko.observable<Round>();
+    public ShowArchiveMessage: KnockoutObservable<boolean> = ko.observable<boolean>(false);
+
     public Contestants: KnockoutObservableArray<Contestant> = ko.observableArray<Contestant>();
     public Rounds: KnockoutObservableArray<Round> = ko.observableArray<Round>();
-    public CurrentRound: KnockoutObservable<Round> = ko.observable<Round>();
+
     public DisplayContestants: KnockoutComputed<string>;
 
     private _id: string;
@@ -78,6 +81,21 @@ export class EventEditor {
     public async Save() {
         const dto = this.ToDTO();
         const result = await Request<DataOperationResult<EventDTO>>('api/event', 'POST', dto);
+        if (result.Success) {
+            window.location.reload();
+        }
+    }
+
+    public Archive() {
+        this.ShowArchiveMessage(true);
+    }
+
+    public ArchiveCancel() {
+        this.ShowArchiveMessage(false);
+    }
+
+    public async ArchiveConfirm() {
+        const result = await Request<OperationResult>(`api/event/${this._id}`, 'DELETE');
         if (result.Success) {
             window.location.reload();
         }

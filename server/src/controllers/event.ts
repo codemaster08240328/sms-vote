@@ -206,18 +206,33 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-export const deleteEvent = (req: Request, res: Response, next: NextFunction) => {
-    EventModel.findByIdAndRemove(req.params.eventId, (err, product: EventDocument) => {
-        if (err) {
-            return next(err);
-        }
+// OBSOLETE: Never delete events
+// export const deleteEvent = (req: Request, res: Response, next: NextFunction) => {
+//     EventModel.findByIdAndRemove(req.params.eventId, (err, product: EventDocument) => {
+//         if (err) {
+//             return next(err);
+//         }
 
-        const result: OperationResult = {
-            Success: true
-        };
+//         const result: OperationResult = {
+//             Success: true
+//         };
 
-        res.json(result);
-    });
+//         res.json(result);
+//     });
+// };
+
+export const archiveEvent = async (req: Request, res: Response, next: NextFunction) => {
+    const event = await EventModel.findById(req.params.eventId);
+
+    event.Enabled = false;
+
+    await event.save();
+
+    const result: OperationResult = {
+        Success: true
+    };
+
+    res.json(result);
 };
 
 export const getEvents = async (req: Request, res: Response, next: NextFunction) => {

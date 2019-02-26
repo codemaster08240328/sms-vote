@@ -23,13 +23,13 @@ table.table.table-hover
                     data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy, css: IncrementRoundCSS")
                     span.ladda-label(data-bind="text: IncrementRoundText") 
             td.text-center
-                a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Register", data-bind="attr: { href: '/event/' + _id + '/register' }")
+                button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Register", data-bind="attr: { href: '/event/' + _id + '/register' }")
                     i.glyphicon.glyphicon-user
             td.text-center
-                a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Announce", data-bind="attr: { href: '/event/' + _id + '/announce' }")
+                button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Announce", data-bind="attr: { href: '/event/' + _id + '/announce' }")
                     i.glyphicon.glyphicon-bullhorn
             td.text-center
-                button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parent.Edit(_id); }, disable: $parent.LoadingTracker.Busy")
+                button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parents[1].Edit(_id); }, disable: $parents[1].LoadingTracker.Busy")
                     i.glyphicon.glyphicon-pencil
             //- td.text-center
             //-     button.btn.btn-danger.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Delete", data-bind="click: function() { $parent.Delete($data); }, disable: $parent.LoadingTracker.Busy")

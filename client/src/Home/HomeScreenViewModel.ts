@@ -64,7 +64,7 @@ export class HomeScreenViewModel {
                     .map(e => new EventSummary(e)));
 
                 this.ArchivedEvents(dtos
-                    .filter(e => e.Enabled == true)
+                    .filter(e => e.Enabled == false)
                     .map(e => new EventSummary(e)));
             }));
     }
