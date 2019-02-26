@@ -16522,11 +16522,12 @@
 
     class EventSummary {
         constructor(dto) {
+            this.Rounds = ko.observable();
             this.CurrentRound = ko.observable();
             this.CurrentRoundUpdater = new BusyTracker();
             this.LoadEvent(dto);
             this.NextRoundNumber = ko.computed(() => {
-                const rounds = this.Rounds
+                const rounds = this.Rounds()
                     .filter(r => !r.IsFinished);
                 if (rounds.length > 0) {
                     return rounds.map(r => r.RoundNumber)
@@ -16542,8 +16543,8 @@
                 if (this.CurrentRound()) {
                     return `End Round ${this.CurrentRound().RoundNumber}`;
                 }
-                else if (this.Rounds.some(r => !r.IsFinished)) {
-                    const rounds = this.Rounds
+                else if (this.Rounds().some(r => !r.IsFinished)) {
+                    const rounds = this.Rounds()
                         .filter(r => !r.IsFinished);
                     if (rounds.length > 0) {
                         const nextRound = rounds.map(r => r.RoundNumber)
@@ -16563,8 +16564,8 @@
                 if (this.CurrentRound()) {
                     return `btn-danger`;
                 }
-                else if (this.Rounds.some(r => !r.IsFinished)) {
-                    const rounds = this.Rounds
+                else if (this.Rounds().some(r => !r.IsFinished)) {
+                    const rounds = this.Rounds()
                         .filter(r => !r.IsFinished);
                     if (rounds.length > 0) {
                         const nextRound = rounds.map(r => r.RoundNumber)
@@ -16587,7 +16588,7 @@
             this.Enabled = dto.Enabled;
             this.PhoneNumber = dto.PhoneNumber;
             this.Contestants = dto.Contestants;
-            this.Rounds = dto.Rounds;
+            this.Rounds(dto.Rounds);
             this.CurrentRound(dto.CurrentRound);
         }
         async IncrementRound() {

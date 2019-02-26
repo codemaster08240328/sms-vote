@@ -319,12 +319,24 @@ export const incrementRound = async (req: Request, res: Response, next: NextFunc
                 };
                 res.json(operationResult);
             }
-            else { // can't increment because all rounds are finished. return failure.
-                console.log('Attempted to increment round on finished event.');
-                const operationResult: OperationResult = {
-                    Success: false
+            else { // loop if all rounds are finished.
+                console.log('Attempted to increment round on finished event. Looping rounds.');
+
+                event.Rounds.forEach(r => r.IsFinished = false);
+                event.CurrentRound = null;
+
+                const result = await event.save();
+
+                const operationResult: DataOperationResult<EventDTO> = {
+                    Success: true,
+                    Data: result
                 };
                 res.json(operationResult);
+                // console.log('Attempted to increment round on finished event.');
+                // const operationResult: OperationResult = {
+                //     Success: false
+                // };
+                // res.json(operationResult);
             }
         }
     }

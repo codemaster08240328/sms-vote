@@ -17,7 +17,7 @@ table.table.table-hover
             td(data-bind='text: PhoneNumber')
             td
                 button.btn.btn-xs.ladda-button(type="button" data-style="zoom-in" data-size="xs" 
-                    data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy, css: IncrementRoundCSS")
+                    data-bind="click: IncrementRound, buttonbusy: CurrentRoundUpdater.Busy, css: IncrementRoundCSS")
                     span.ladda-label(data-bind="text: IncrementRoundText") 
             td.text-center
                 button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Register", data-bind="attr: { href: '/event/' + _id + '/register' }")

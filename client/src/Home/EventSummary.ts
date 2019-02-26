@@ -12,7 +12,7 @@ export class EventSummary {
     public Enabled: boolean;
     public PhoneNumber: string;
     public Contestants: EventContestantDTO[];
-    public Rounds: RoundDTO[];
+    public Rounds: KnockoutObservable<RoundDTO[]> = ko.observable<RoundDTO[]>();
     public CurrentRound: KnockoutObservable<RoundDTO> = ko.observable<RoundDTO>();
     public IncrementRoundText: KnockoutComputed<string>;
     public IncrementRoundCSS: KnockoutComputed<string>;
@@ -24,7 +24,7 @@ export class EventSummary {
         this.LoadEvent(dto);
 
         this.NextRoundNumber = ko.computed(() => {
-            const rounds = this.Rounds
+            const rounds = this.Rounds()
                 .filter(r => !r.IsFinished);
             if (rounds.length > 0) {
                 return rounds.map(r => r.RoundNumber)
@@ -40,8 +40,8 @@ export class EventSummary {
             if (this.CurrentRound()) {
                 return `End Round ${this.CurrentRound().RoundNumber}`;
             }
-            else if (this.Rounds.some(r => !r.IsFinished)) {
-                const rounds = this.Rounds
+            else if (this.Rounds().some(r => !r.IsFinished)) {
+                const rounds = this.Rounds()
                     .filter(r => !r.IsFinished);
 
                 if (rounds.length > 0) {
@@ -63,8 +63,8 @@ export class EventSummary {
             if (this.CurrentRound()) {
                 return `btn-danger`;
             }
-            else if (this.Rounds.some(r => !r.IsFinished)) {
-                const rounds = this.Rounds
+            else if (this.Rounds().some(r => !r.IsFinished)) {
+                const rounds = this.Rounds()
                     .filter(r => !r.IsFinished);
 
                 if (rounds.length > 0) {
@@ -89,7 +89,7 @@ export class EventSummary {
         this.Enabled = dto.Enabled;
         this.PhoneNumber = dto.PhoneNumber;
         this.Contestants = dto.Contestants;
-        this.Rounds = dto.Rounds;
+        this.Rounds(dto.Rounds);
 
         this.CurrentRound(dto.CurrentRound);
     }
