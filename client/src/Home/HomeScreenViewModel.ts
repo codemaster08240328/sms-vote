@@ -63,10 +63,12 @@ export class HomeScreenViewModel {
             .then((dtos) => {
                 this.ActiveEvents(dtos
                     .filter(e => e.Enabled == true)
+                    .sort((a, b) => a.Name.compareTo(b.Name, true))
                     .map(e => new EventSummary(e)));
 
                 this.ArchivedEvents(dtos
                     .filter(e => e.Enabled == false)
+                    .sort((a, b) => a.Name.compareTo(b.Name, true))
                     .map(e => new EventSummary(e)));
             }));
     }

@@ -3,7 +3,6 @@ table.table.table-hover
         tr
             th EventId
             th Phone Number
-            th Live
             th Round
             th Register
             th Announce
@@ -16,8 +15,6 @@ table.table.table-hover
                 a(data-bind="attr: { href: '/event/' + _id + '/results' }")
                     span(data-bind='text: Name')
             td(data-bind='text: PhoneNumber')
-            td
-                input(type='checkbox', data-bind='enable: false, checked: Enabled')
             td
                 button.btn.btn-xs.ladda-button(type="button" data-style="zoom-in" data-size="xs" 
                     data-bind="click: IncrementRound, disable: NextRoundNumber() == 0, buttonbusy: CurrentRoundUpdater.Busy, css: IncrementRoundCSS")
