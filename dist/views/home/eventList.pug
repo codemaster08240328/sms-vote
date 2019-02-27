@@ -20,10 +20,10 @@ table.table.table-hover
                     data-bind="click: IncrementRound, buttonbusy: CurrentRoundUpdater.Busy, css: IncrementRoundCSS")
                     span.ladda-label(data-bind="text: IncrementRoundText") 
             td.text-center
-                button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Register", data-bind="attr: { href: '/event/' + _id + '/register' }")
+                a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Register", data-bind="attr: { href: '/event/' + _id + '/register' }")
                     i.glyphicon.glyphicon-user
             td.text-center
-                button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Announce", data-bind="attr: { href: '/event/' + _id + '/announce' }")
+                a.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Announce", data-bind="attr: { href: '/event/' + _id + '/announce' }")
                     i.glyphicon.glyphicon-bullhorn
             td.text-center
                 button.btn.btn-primary.btn-xs(data-placement="top", data-toggle="tooltip", data-original-title="Edit", data-bind="click: function() { $parents[1].Edit(_id); }, disable: $parents[1].LoadingTracker.Busy")
