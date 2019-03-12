@@ -160,13 +160,15 @@ export const saveEvent = async (req: Request, res: Response, next: NextFunction)
             console.error(error);
             throw error;
         }
-        if (!IsPhoneNumber(dto.PhoneNumber)) {
-            const error = `Invalid event record. Phone Number in the wrong format ${dto.PhoneNumber}.`;
-            console.error(error);
-            throw error;
-        }
 
-        dto.PhoneNumber = SanitizePhoneNumber(dto.PhoneNumber);
+        // ignore phone number validation for now
+        // if (!IsPhoneNumber(dto.PhoneNumber)) {
+        //     const error = `Invalid event record. Phone Number in the wrong format ${dto.PhoneNumber}.`;
+        //     console.error(error);
+        //     throw error;
+        // }
+
+        // dto.PhoneNumber = SanitizePhoneNumber(dto.PhoneNumber);
 
         dto.Contestants.map(contestant => ContestantModel.findByIdAndUpdate(contestant._id, contestant, { upsert: true }).exec())
             .forEach(async promise => await promise);

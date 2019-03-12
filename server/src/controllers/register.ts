@@ -57,13 +57,15 @@ export const registerVoter = async (req: Request, res: Response, next: NextFunct
             console.error(error);
             throw error;
         }
-        if (!IsPhoneNumber(dto.PhoneNumber)) {
-            const error = `Invalid registration record. Phone Number in the wrong format ${dto.PhoneNumber}.`;
-            console.error(error);
-            throw error;
-        }
 
-        dto.PhoneNumber = SanitizePhoneNumber(dto.PhoneNumber);
+        // ignore phone number validation for now
+        // if (!IsPhoneNumber(dto.PhoneNumber)) {
+        //     const error = `Invalid registration record. Phone Number in the wrong format ${dto.PhoneNumber}.`;
+        //     console.error(error);
+        //     throw error;
+        // }
+
+        // dto.PhoneNumber = SanitizePhoneNumber(dto.PhoneNumber);
 
         let registration = await RegistrationModel.findOne({ PhoneNumber: dto.PhoneNumber });
         if (registration) {

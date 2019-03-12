@@ -16526,6 +16526,7 @@
             this.CurrentRound = ko.observable();
             this.CurrentRoundUpdater = new BusyTracker();
             this.LoadEvent(dto);
+            console.log('cache invalidation test222');
             this.NextRoundNumber = ko.computed(() => {
                 const rounds = this.Rounds()
                     .filter(r => !r.IsFinished);
