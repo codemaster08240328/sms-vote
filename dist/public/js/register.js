@@ -139,10 +139,6 @@
         }
     }
 
-    function IsPhoneNumber(str) {
-        return /1\d{10}/.test(str) || /^([2-9])(\d{9})/.test(str);
-    }
-
     var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
     function unwrapExports (x) {
@@ -16456,12 +16452,12 @@
             this._resetCallback();
         }
         CheckValid() {
-            if (IsPhoneNumber(this.PhoneNumber())) {
-                return true;
-            }
-            else {
-                this.IsPhoneNumberValid(false);
-            }
+            // if (IsPhoneNumber(this.PhoneNumber())) {
+            //     return true;
+            // } else {
+            //     this.IsPhoneNumberValid(false);
+            // }
+            return true;
         }
     }
 

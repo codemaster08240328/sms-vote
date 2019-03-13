@@ -54,11 +54,12 @@ export class RegistrationEditor {
     }
 
     private CheckValid(): boolean {
-        if (IsPhoneNumber(this.PhoneNumber())) {
-            return true;
-        } else {
-            this.IsPhoneNumberValid(false);
-        }
+        // if (IsPhoneNumber(this.PhoneNumber())) {
+        //     return true;
+        // } else {
+        //     this.IsPhoneNumberValid(false);
+        // }
+        return true;
     }
 
 }
